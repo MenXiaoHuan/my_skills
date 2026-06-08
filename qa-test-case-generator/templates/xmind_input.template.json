@@ -1,0 +1,27 @@
+{
+  "root_title": "用例集",
+  "groups": [
+    {
+      "title": "+Module or Workflow",
+      "cases": [
+        {
+          "title": "[P1] Module - Scenario title",
+          "priority": "P1",
+          "note": "Optional note or remark",
+          "preconditions": "Role, data state, or environment setup",
+          "description": "",
+          "steps": [
+            {
+              "action": "Open the target page or entry",
+              "expected": "The page shows the expected initial state"
+            },
+            {
+              "action": "Perform the key user action",
+              "expected": "The system responds with the expected result"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
