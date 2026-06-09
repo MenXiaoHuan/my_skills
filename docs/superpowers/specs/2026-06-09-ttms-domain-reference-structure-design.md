@@ -4,7 +4,7 @@
 
 The current TTMS business-domain reference lives in a single file:
 
-- `references/domain/modules/ttms.md`
+- the legacy single-file TTMS reference
 
 That file currently mixes multiple responsibilities:
 
@@ -295,7 +295,7 @@ Typical P0 candidates:
 
 Current source file:
 
-- `references/domain/modules/ttms.md`
+- the legacy single-file TTMS reference
 
 Recommended extraction mapping:
 
@@ -320,8 +320,8 @@ Recommended extraction mapping:
 3. Split module-specific guidance from the current `ttms.md` into individual files under `modules/`.
 4. Copy module-specific source links into each corresponding module file.
 5. Move only truly cross-module heuristics into `shared-context.md`.
-6. Update `references/domain/SKILL.md` so progressive disclosure points to `modules/ttms/index.md` instead of `modules/ttms.md`.
-7. Replace the old `references/domain/modules/ttms.md` with one of the following:
+6. Update `references/domain/SKILL.md` so progressive disclosure points to `modules/ttms/index.md` instead of the previous flat TTMS entry.
+7. Replace the legacy single-file TTMS reference with one of the following:
    - preferred: remove it entirely
    - fallback: keep a short compatibility shim that points to `modules/ttms/index.md`
 
