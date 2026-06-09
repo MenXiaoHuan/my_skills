@@ -36,8 +36,8 @@ Read additional files only when needed:
 - `references/output-rules.md`
 - `templates/xmind_input.template.json`
 - `templates/response-template.md`
-- `templates/test-point-table.template.md`
-- `templates/test-case-table.template.md`
+- `examples/web-login.md`
+- `examples/order-api-idempotency.md`
 - `scripts/xmind_build.py`
 
 ## Default Workflow

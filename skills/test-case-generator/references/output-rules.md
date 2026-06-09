@@ -1,62 +1,40 @@
 # Output Rules
 
-Read this file only when you need stricter formatting rules, explicit priority wording, table structures, or XMind hierarchy details beyond the default workflow in `SKILL.md`.
+Read this file only when you need stricter behavior constraints, priority wording, or XMind generation rules beyond the default workflow in `SKILL.md`.
 
-## Default Deliverable
+Use `templates/` for fixed output formats.
+
+Use `examples/` for few-shot examples of good input and output patterns.
+
+## Deliverable Rules
 
 Default output is a real `.xmind` file generated on disk.
 
-Rules:
-- Return the absolute file path first.
-- Keep supporting narration short unless the user asks for more detail.
-- Treat the `.xmind` file as the primary deliverable.
-- Do not expose the intermediate JSON build file unless the user explicitly asks for debugging artifacts.
-- If generation fails, explain the exact failure and provide a fallback outline only as a failure mode.
-
-## Required Output Behavior
-
 Always:
-- Generate a complete in-scope case set, not only `P0`
-- Mark `P0` cases explicitly when justified
-- State assumptions when source material is incomplete
-- Call out document conflicts instead of silently merging contradictions
+- return the absolute file path first
+- keep supporting narration short unless the user asks for more detail
+- treat the `.xmind` file as the primary deliverable
+- generate a complete in-scope case set, not only `P0`
+- mark `P0` cases explicitly when justified
+- state assumptions when source material is incomplete
+- call out document conflicts instead of silently merging contradictions
 
 Do not:
-- Return only a prose summary when the user expects test cases
-- Invent domain-specific business rules without a clear source or an explicit assumption label
-- Use `P0` as a filter that suppresses `P1/P2/P3`
+- expose the intermediate JSON build file unless the user explicitly asks for debugging artifacts
+- return only a prose summary when the user expects test cases
+- invent domain-specific business rules without a clear source or an explicit assumption label
+- use `P0` as a filter that suppresses `P1/P2/P3`
 
-## Test Point Standard
+If generation fails, explain the exact failure and provide a fallback outline only as a failure mode.
 
-Recommended naming pattern:
+## Naming Rules
 
-`[Module] - [Business Rule or Verification Focus]`
+Use concise, implementation-aware case names.
 
-Example:
-- `Authentication - MFA challenge appears after valid password submission`
-- `Order API - Duplicate callback is handled idempotently`
-- `Sales Dashboard - Chart and export totals stay consistent under the selected filters`
+Recommended patterns:
 
-Default test point table:
-
-| Test Point ID | Module/Feature | Test Point | Source Basis | Priority | Rationale |
-| --- | --- | --- | --- | --- | --- |
-
-## Test Case Standard
-
-Recommended naming pattern:
-
-`[Module] - [Action] - [Condition or Expected Behavior]`
-
-Example:
-- `Authentication - Require MFA after valid password submission`
-- `Order API - Return 409 when duplicate create request conflicts with existing state`
-- `Sales Dashboard - Keep chart, table, and export totals consistent for the selected date range`
-
-Default detailed case table:
-
-| Test Case ID | Module/Feature | Test Scenario | Preconditions | Test Steps | Test Data | Expected Result | Priority | Test Type |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+- Test point: `[Module] - [Business Rule or Verification Focus]`
+- Test case: `[Module] - [Action] - [Condition or Expected Behavior]`
 
 ## Priority Model
 
@@ -85,47 +63,12 @@ Priority mapping:
 - `P2` -> `priority-3`
 - `P3` -> `priority-4`
 
-## Structured Input for the Builder
-
 Use a normalized case tree before generating the final file.
 
 Write the JSON to an internal build file such as `.test_case_xmind_input.json`.
 
-Recommended JSON shape:
+For the JSON skeleton, use `templates/xmind_input.template.json`.
 
-```json
-{
-  "root_title": "用例集",
-  "groups": [
-    {
-      "title": "Authentication",
-      "cases": [
-        {
-          "title": "[P0] Authentication - Require MFA after valid password submission",
-          "priority": "P0",
-          "note": "Optional note",
-          "preconditions": "Test account has MFA enabled",
-          "description": "",
-          "steps": [
-            {
-              "action": "Submit valid username and password",
-              "expected": "The MFA challenge is displayed"
-            }
-          ]
-        }
-      ]
-    }
-  ]
-}
-```
+For the response layout, use `templates/response-template.md`.
 
-## Response Template
-
-Default response order:
-
-1. XMind file path
-2. P0 Scenario Summary
-3. Source Summary
-4. Full Case Coverage Summary
-5. Risks and Open Questions
-
+For table output, follow the field conventions in this skill and generate a concise Markdown table directly when the user explicitly asks for table-form deliverables.
