@@ -27,7 +27,13 @@ Read only the matching module under `modules/`.
 
 Current maintained modules:
 
-- `modules/ttms.md`
+- `modules/ttms/index.md`
+
+For TTMS:
+- read `modules/ttms/index.md` first
+- read `modules/ttms/shared-context.md` only when TTMS-wide context is needed
+- use `modules/ttms/module-map.md` to locate the correct module file
+- read only the matching file under `modules/ttms/modules/`
 
 As this repository grows, add more domain modules under `modules/` and read only the relevant one.
 
