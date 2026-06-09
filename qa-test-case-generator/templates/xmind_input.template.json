@@ -2,7 +2,7 @@
   "root_title": "用例集",
   "groups": [
     {
-      "title": "+Module or Workflow",
+      "title": "Module or Workflow",
       "cases": [
         {
           "title": "[P1] Module - Scenario title",

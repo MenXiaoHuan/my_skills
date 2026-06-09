@@ -93,6 +93,7 @@ Always:
 - explicitly mark `P0` cases when justified
 - state `本次范围未识别出 P0 场景` when no case truly qualifies
 - preserve full agreed coverage beyond `P0`
+- treat intermediate JSON as internal build data and do not present it as a user-facing output unless the user explicitly asks for debugging artifacts
 
 Only provide markdown tables or outline previews when the user asks for them or they materially improve traceability.
 
@@ -112,14 +113,16 @@ When generating the final file:
    - `preconditions`
    - `description`
    - `steps[] { action, expected }`
-2. Write that JSON to `xmind_input.json` in the current working directory.
+2. Write that JSON to an internal build file such as `.ttms_xmind_input.json` in the current working directory.
 3. Run:
 
 ```bash
-python3 scripts/xmind_build.py xmind_input.json output.xmind
+python3 scripts/xmind_build.py .ttms_xmind_input.json output.xmind
 ```
 
 4. Verify `output.xmind` exists and is non-empty before responding.
+
+Return only the final `.xmind` file path by default. Do not surface `.ttms_xmind_input.json` unless the user explicitly asks for the intermediate artifact.
 
 Use `root_title = 用例集` unless the user explicitly requests another root title.
 

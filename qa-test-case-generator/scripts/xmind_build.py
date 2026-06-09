@@ -65,7 +65,7 @@ def build_content_xml(data):
     root_attached = _attach_children(root)
 
     for group in data.get("groups") or []:
-        group_topic = _topic(root_attached, group.get("title") or "+分组")
+        group_topic = _topic(root_attached, group.get("title") or "分组")
         group_attached = _attach_children(group_topic)
 
         for case in group.get("cases") or []:

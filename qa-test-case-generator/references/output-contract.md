@@ -10,6 +10,7 @@ Rules:
 - Return the absolute file path first.
 - Keep supporting narration short unless the user asks for more detail.
 - Treat the `.xmind` file as the primary deliverable, not an optional attachment.
+- Do not expose the intermediate JSON build file unless the user explicitly asks for debugging artifacts.
 - If generation fails, explain the exact failure and provide a fallback outline only as a failure mode.
 
 Default response order:
@@ -148,7 +149,7 @@ The output file must be XMind 8 compatible and openable as a zip container with 
 
 Preferred hierarchy:
 - Root topic: `用例集`
-- Group node: `+分组 N` or a short module/workflow label
+- Group node: a short module/workflow label
 - Test case node: one topic per case
 - Detail node under case: `前置条件` preferred, `文本描述` allowed when setup is not needed
 - Step nodes under detail branch
@@ -199,9 +200,9 @@ Apply both of the following to `P0` cases:
 Use short, stable names:
 
 - Group name:
-  - `+Nomination`
-  - `+Audience Transition`
-  - `+Brand Diagnosis`
+  - `Nomination`
+  - `Audience Transition`
+  - `Brand Diagnosis`
 - Precondition node:
   - one compact sentence describing setup, role, or data state
 - Step node:
@@ -215,6 +216,8 @@ When preparing data for `scripts/xmind_build.py`, use a normalized case tree bef
 
 If you only need a starter artifact instead of writing the JSON from scratch, begin from `templates/xmind_input.template.json` and replace the placeholder group, cases, priorities, and steps with scenario-specific content.
 
+Write the JSON to an internal build file such as `.ttms_xmind_input.json`. Treat it as an implementation detail rather than a user-facing deliverable.
+
 Recommended JSON shape:
 
 ```json
@@ -222,7 +225,7 @@ Recommended JSON shape:
   "root_title": "用例集",
   "groups": [
     {
-      "title": "+Nomination",
+      "title": "Nomination",
       "cases": [
         {
           "title": "[P0] Nomination Center - Show invite link after Data Ready",
@@ -282,7 +285,7 @@ XMind file: /absolute/path/to/output.xmind
   "root_title": "用例集",
   "groups": [
     {
-      "title": "+Nomination",
+      "title": "Nomination",
       "cases": [
         {
           "title": "[P0] Nomination Center - Invite link visible after Data Ready",
@@ -348,6 +351,10 @@ If `.xmind` generation fails:
 - explain the exact failure
 - provide the fallback outline only as a temporary substitute
 - do not pretend the main deliverable succeeded
+
+If the intermediate JSON exists:
+- keep it available for internal reproduction if needed
+- do not present it in the normal user-facing output
 
 If the source materials conflict:
 - identify the conflict explicitly
