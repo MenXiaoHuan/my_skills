@@ -74,6 +74,7 @@ Always:
 - state `本次范围未识别出 P0 场景` when no case truly qualifies
 - preserve full agreed coverage beyond `P0`
 - treat intermediate JSON as internal build data and do not present it as a user-facing output unless the user explicitly asks for debugging artifacts
+- keep group and case titles free of Markdown bullet prefixes such as `+`, `-`, `*`, or numbered list markers
 
 ## XMind Generation
 

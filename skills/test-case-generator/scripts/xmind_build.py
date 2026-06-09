@@ -1,5 +1,6 @@
 import json
 import os
+import re
 import sys
 import uuid
 import zipfile
@@ -21,9 +22,18 @@ def _iso_now():
     return datetime.now(timezone.utc).isoformat(timespec="seconds").replace("+00:00", "Z")
 
 
+def _sanitize_title(title):
+    text = str(title or "").strip()
+    while True:
+        updated = re.sub(r"^(?:(?:[+*\-]\s*)|(?:\d+[.)]\s+))+", "", text)
+        if updated == text:
+            return text
+        text = updated.strip()
+
+
 def _topic(parent, title, note=None, marker=None):
     topic = SubElement(parent, f"{{{NS_CONTENT}}}topic", {"id": _u()})
-    SubElement(topic, f"{{{NS_CONTENT}}}title").text = title or ""
+    SubElement(topic, f"{{{NS_CONTENT}}}title").text = _sanitize_title(title)
 
     if note:
         notes = SubElement(topic, f"{{{NS_CONTENT}}}notes")

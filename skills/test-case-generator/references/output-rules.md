@@ -36,6 +36,12 @@ Recommended patterns:
 - Test point: `[Module] - [Business Rule or Verification Focus]`
 - Test case: `[Module] - [Action] - [Condition or Expected Behavior]`
 
+Title hygiene:
+
+- do not prefix group titles or test case titles with Markdown list markers such as `+`, `-`, `*`, or numbered bullets
+- output clean topic titles only, for example use `任务创建 - 历史参考节点设置`, not `+任务创建 - 历史参考节点设置`
+- keep priority labels like `[P0]` only when they are part of the actual case title
+
 ## Priority Model
 
 - `P0`: Release-critical path, launch blocker, or severe failure on a core workflow
