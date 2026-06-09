@@ -13,7 +13,7 @@ XMind file: /absolute/path/to/output.xmind
 ### Source Summary
 - requirement document or user-provided feature description
 - technical design or API spec
-- supplementary TTMS module reference if used
+- supplementary domain knowledge reference if used
 
 ### Assumptions
 - List assumptions only when needed

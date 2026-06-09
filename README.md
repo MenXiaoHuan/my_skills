@@ -1,28 +1,33 @@
-# ttms
+这个仓库用于维护个人技能和参考资料技能。
 
-TTMS 相关 Skill 与配套工作目录的仓库根目录。
+目录约定：
 
-当前正式纳入版本管理的核心内容位于：
-
-- `qa-test-case-generator/`
-
-其中包含：
-- `SKILL.md`
+- `skills/`
+  放可安装的技能包。
 - `references/`
-- `templates/`
-- `scripts/`
-- `evals/`
+  放独立维护的参考资料技能，按 `apis/`、`architecture/`、`domain/` 分类组织；每类包含 `SKILL.md` 和 `modules/`。
+- `tests/`
+  仅作为本地临时验证目录使用，不作为长期维护内容；验证完成后应清理。
 
-运行时和评估阶段产生的工作目录保留在仓库根下，但默认不纳入版本管理：
+## 如何使用
 
-- `qa-test-case-generator-workspace/`
+1. 本地安装 Skill，让 Agent 执行命令：
 
-## 仓库结构
+```bash
+npx skills add -y -g https://github.com/MenXiaoHuan/my_skills.git
+```
 
-```text
-ttms/
-├── README.md
-├── .gitignore
-├── qa-test-case-generator/
-└── qa-test-case-generator-workspace/
+2. 配置自动更新 Hook：
+
+```json
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "type": "command",
+        "command": "npx skills update -g -y 2>/dev/null"
+      }
+    ]
+  }
+}
 ```

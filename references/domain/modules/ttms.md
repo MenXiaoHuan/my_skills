@@ -1,4 +1,4 @@
-# TTMS Modules Reference
+# TTMS Domain Reference
 
 Read this file only when the primary requirement or technical materials do not fully explain TTMS-specific business semantics, module behavior, role definitions, metric meanings, or cross-module context.
 
