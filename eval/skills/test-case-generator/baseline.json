@@ -1,0 +1,27 @@
+{
+  "skill_name": "test-case-generator",
+  "version": 1,
+  "default_language": "zh-CN",
+  "output_contract": {
+    "primary_artifact": "xmind",
+    "return_absolute_path_first": true,
+    "require_real_xmind_file": true
+  },
+  "global_expectations": [
+    "keep full in-scope coverage instead of outputting only P0 cases",
+    "mark P0 only when justified",
+    "state no P0 explicitly when none qualifies",
+    "separate confirmed information from assumptions when assumptions are used",
+    "label output as draft when critical source material is missing or conflicting"
+  ],
+  "forbidden_behaviors": [
+    "returning only prose when a real xmind deliverable is required",
+    "treating P0 as a coverage filter",
+    "silently inventing critical workflow semantics",
+    "using markdown bullet prefixes in xmind group or case titles"
+  ],
+  "scoring": {
+    "mode": "rule-based",
+    "pass_threshold": 1.0
+  }
+}
