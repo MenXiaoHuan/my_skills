@@ -1,5 +1,3 @@
-XMind file: /absolute/path/to/output.xmind
-
 ### P0 Scenario Summary
 - `本次范围未识别出 P0 场景`
 
