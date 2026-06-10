@@ -1,0 +1,28 @@
+{
+  "id": "case_001",
+  "title": "Web login with MFA and lockout",
+  "type": "core",
+  "tags": ["web", "auth", "mfa", "lockout", "p0"],
+  "prompt": "请基于以下 Web 登录需求设计测试用例，并默认输出真实 .xmind 文件。需求：用户输入正确账号密码后，如果账号开启了 MFA，则必须先完成短信验证码校验才能进入控制台；连续输错密码 5 次后账号锁定 15 分钟；已锁定账号在锁定期内使用正确密码也不能登录。请覆盖正常流程、MFA、锁定、边界和异常场景，并标记 release-critical 场景。",
+  "inputs": {
+    "files": []
+  },
+  "expect": {
+    "must": [
+      "generate a real .xmind file",
+      "return the absolute path first",
+      "cover login success flow",
+      "cover MFA flow",
+      "cover account lockout behavior",
+      "cover boundary and negative scenarios"
+    ],
+    "should": [
+      "identify at least one justified P0 scenario"
+    ],
+    "must_not": [
+      "output only P0 cases",
+      "omit lockout-with-correct-password behavior"
+    ]
+  },
+  "notes": "Core regression case for auth flow."
+}
