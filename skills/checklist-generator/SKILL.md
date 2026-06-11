@@ -1,9 +1,9 @@
 ---
-name: "test-case-generator"
+name: "checklist-generator"
 description: "Use when the user needs structured test points, detailed test cases, coverage analysis, regression scope, or a real .xmind deliverable from requirement docs, technical designs, API specs, prototypes, change logs, or feature descriptions."
 ---
 
-# Test Case Generator
+# Checklist Generator
 
 Generate implementation-aware test points, detailed test cases, and a real `.xmind` file from requirement documents, technical designs, APIs, prototypes, change summaries, or structured feature descriptions.
 

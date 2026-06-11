@@ -11,8 +11,6 @@ Use this example when the request is a feature requirement and the expected outp
 ## Example Output Shape
 
 ```text
-XMind file: /absolute/path/to/output.xmind
-
 ### P0 Scenario Summary
 - `Authentication - Account lock remains effective during the lock window even with the correct password`
 

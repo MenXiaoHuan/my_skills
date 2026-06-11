@@ -11,8 +11,6 @@ Use this example when the request is API-focused and the expected output is a st
 ## Example Output Shape
 
 ```text
-XMind file: /absolute/path/to/output.xmind
-
 ### P0 Scenario Summary
 - `Order API - Repeated request with the same idempotency key and same payload returns the original successful result`
 - `Order API - Repeated request with the same idempotency key and different payload returns 409 conflict`
