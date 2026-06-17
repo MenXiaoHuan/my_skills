@@ -1,6 +1,6 @@
 # Example: Order API Idempotency
 
-Use this example when the request is API-focused and the expected output is a structured test design plus a real `.xmind` file.
+Use this example when the request is API-focused and the expected output is structured detailed QA test cases plus a real `.xmind` file.
 
 ## Example Input
 
@@ -32,27 +32,35 @@ Use this example when the request is API-focused and the expected output is a st
 
 ## Example XMind Shape
 
-The final user-facing answer should return the `.xmind` file path first, but the generated file itself should follow an XMind-oriented case tree similar to:
+The final user-facing answer should deliver the generated `.xmind` file as the primary artifact, without exposing a local absolute path, and the generated file itself should follow an XMind-oriented case tree similar to:
 
 ```text
 用例集
 └── Order API
     ├── [P1] Order API - Reject request without idempotency key
-    │   └── 文本描述
-    │       ├── 缺少 `Idempotency-Key`
-    │       │   └── 返回参数校验错误
+    │   ├── 文本描述
+    │   │   └── 缺少 `Idempotency-Key`
+    │   └── 步骤
+    │       └── 步骤 1: 请求中不传 `Idempotency-Key`
+    │           └── 预期 1: 返回参数校验错误
     ├── [P0] Order API - Return original order result for same key and same payload
-    │   └── 前置条件
-    │       ├── 首次请求已成功创建订单
-    │       │   └── 重复请求返回同一订单结果
+    │   ├── 前置条件
+    │   │   └── 首次请求已成功创建订单
+    │   └── 步骤
+    │       └── 步骤 1: 使用相同 key 和相同 payload 重复请求
+    │           └── 预期 1: 返回首次成功创建的订单结果
     ├── [P0] Order API - Return 409 for same key and different payload
-    │   └── 前置条件
-    │       ├── 首次请求已记录该 key
-    │       │   └── 重复请求 payload 不一致时返回 409
+    │   ├── 前置条件
+    │   │   └── 首次请求已记录该 key
+    │   └── 步骤
+    │       └── 步骤 1: 使用相同 key 但不同 payload 重复请求
+    │           └── 预期 1: 返回 409
     └── [P1] Order API - Return 202 when first request is still in progress
-        └── 前置条件
-            ├── 首次请求仍在处理中
-            │   └── 重复请求返回 202 并提示稍后重试
+        ├── 前置条件
+        │   └── 首次请求仍在处理中
+        └── 步骤
+            └── 步骤 1: 在处理完成前发起重复请求
+                └── 预期 1: 返回 202 并提示稍后重试
 ```
 
 ## Example Builder Input Shape
@@ -69,12 +77,14 @@ When the skill needs to build the actual `.xmind` file, the normalized JSON shou
         {
           "title": "[P0] Order API - Return original order result for same key and same payload",
           "priority": "P0",
+          "note": "聚焦幂等命中的主链路返回一致性，属于上线阻断项。",
           "preconditions": "首次请求已成功创建订单",
           "description": "",
           "steps": [
             {
               "action": "使用相同 Idempotency-Key 和相同 payload 重复请求",
-              "expected": "返回首次成功创建的订单结果"
+              "expected": "返回首次成功创建的订单结果",
+              "note": "重点观察订单号、状态码和响应体字段是否与首次请求一致。"
             }
           ]
         }
@@ -89,4 +99,6 @@ When the skill needs to build the actual `.xmind` file, the normalized JSON shou
 - Prefer API-oriented naming for groups and cases.
 - Explicitly cover duplicate, conflict, and in-progress branches.
 - Mark `P0` only for truly launch-blocking flows.
+- Keep the `[P0]` or `[P1]` title prefix aligned with the `priority` field and XMind marker.
+- Keep the case `title` short and use `note` for the subtitle-like explanation shown under the node title in XMind.
 - The few-shot signal should teach both the final response shape and the XMind hierarchy actually written to disk.

@@ -1,19 +1,22 @@
 {
   "root_title": "用例集",
+  "note": "可选。根节点补充说明，通常留空。",
   "groups": [
     {
       "title": "Module or Workflow",
+      "note": "可选。分组的范围说明或业务上下文。",
       "cases": [
         {
           "title": "[P1] Module - Scenario title",
           "priority": "P1",
-          "note": "Optional note or remark",
+          "note": "必填倾向。标题下的一行补充说明，概括验证重点、业务风险或观察点，不要重复标题。",
           "preconditions": "Role, data state, or environment setup",
           "description": "",
           "steps": [
             {
               "action": "Open the target page or entry",
-              "expected": "The page shows the expected initial state"
+              "expected": "The page shows the expected initial state",
+              "note": "可选。步骤补充说明，例如特殊观察点。"
             },
             {
               "action": "Perform the key user action",

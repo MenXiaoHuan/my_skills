@@ -1,0 +1,62 @@
+{
+  "root_title": "用例集（draft）",
+  "groups": [
+    {
+      "title": "幂等键行为",
+      "cases": [
+        {
+          "title": "[P0] 订单创建 - 首次带幂等键请求创建订单",
+          "priority": "P0",
+          "preconditions": "请求体满足下单必填约束",
+          "description": "",
+          "note": "draft；假设成功场景返回 200 或 201",
+          "steps": [
+            {
+              "action": "发送首次带幂等键的创建订单请求",
+              "expected": "返回创建成功结果并生成订单"
+            }
+          ]
+        },
+        {
+          "title": "[P0] 订单创建 - 相同 payload 的重复请求返回同一结果",
+          "priority": "P0",
+          "preconditions": "已存在同一幂等键且首次请求已成功",
+          "description": "",
+          "note": "",
+          "steps": [
+            {
+              "action": "使用相同幂等键和相同 payload 再次请求",
+              "expected": "返回与首次请求一致的订单结果，不重复创建订单"
+            }
+          ]
+        },
+        {
+          "title": "[P1] 订单创建 - 不同 payload 的重复请求返回冲突",
+          "priority": "P1",
+          "preconditions": "已存在同一幂等键对应的成功请求",
+          "description": "",
+          "note": "假设冲突错误码为 409",
+          "steps": [
+            {
+              "action": "使用相同幂等键但不同 payload 再次请求",
+              "expected": "返回冲突错误并说明 payload 不一致"
+            }
+          ]
+        },
+        {
+          "title": "[P1] 订单创建 - 过期幂等键允许重新创建订单",
+          "priority": "P1",
+          "preconditions": "同一幂等键已过期",
+          "description": "",
+          "note": "假设存在可配置的过期时间",
+          "steps": [
+            {
+              "action": "使用过期幂等键再次发送创建订单请求",
+              "expected": "请求可重新创建订单，不复用过期结果"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

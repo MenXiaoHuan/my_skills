@@ -1,0 +1,80 @@
+{
+  "root_title": "用例集",
+  "groups": [
+    {
+      "title": "导入与校验",
+      "cases": [
+        {
+          "title": "[P0] 线索导入 - 模板校验通过后创建导入任务",
+          "priority": "P0",
+          "preconditions": "用户具备导入权限；上传文件满足模板要求",
+          "description": "",
+          "note": "",
+          "steps": [
+            {
+              "action": "上传导入模板并提交",
+              "expected": "系统创建导入任务，页面展示处理中状态和任务统计"
+            }
+          ]
+        },
+        {
+          "title": "[P1] 线索导入 - 错行存在时生成部分成功回执",
+          "priority": "P1",
+          "preconditions": "导入文件同时包含合法行和非法行",
+          "description": "",
+          "note": "",
+          "steps": [
+            {
+              "action": "提交包含错行的导入文件",
+              "expected": "系统完成可导入行处理并生成失败回执，任务结果展示部分成功"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "权限与下游",
+      "cases": [
+        {
+          "title": "[P0] 权限控制 - 普通销售只能查看本人导入任务",
+          "priority": "P0",
+          "preconditions": "系统中存在本人任务和他人任务",
+          "description": "",
+          "note": "",
+          "steps": [
+            {
+              "action": "普通销售进入导入任务列表",
+              "expected": "仅展示本人导入任务，不能审批团队任务"
+            }
+          ]
+        },
+        {
+          "title": "[P1] 审批通过 - 同步客户池并发送站内信",
+          "priority": "P1",
+          "preconditions": "销售主管拥有审批权限；待审批任务存在",
+          "description": "",
+          "note": "",
+          "steps": [
+            {
+              "action": "销售主管审批通过导入任务",
+              "expected": "线索同步进入客户池，相关销售收到站内信通知"
+            }
+          ]
+        },
+        {
+          "title": "[P1] 结果导出 - 导出内容与任务统计一致",
+          "priority": "P1",
+          "preconditions": "导入任务已完成",
+          "description": "",
+          "note": "",
+          "steps": [
+            {
+              "action": "导出导入任务结果",
+              "expected": "导出文件中的成功数、失败数和回执明细与页面任务统计一致"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

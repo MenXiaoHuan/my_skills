@@ -1,0 +1,67 @@
+{
+  "root_title": "用例集",
+  "groups": [
+    {
+      "title": "提单与审批",
+      "cases": [
+        {
+          "title": "[P0] 结算单提交 - 资料齐全后进入一级审批",
+          "priority": "P0",
+          "preconditions": "财务专员拥有提交权限；供应商、发票、账期和 ERP 对账信息齐全",
+          "description": "",
+          "note": "",
+          "steps": [
+            {
+              "action": "填写结算单必填字段并点击提交审批",
+              "expected": "结算单状态变为待一级审批，页面展示审批流起点且提交按钮不可重复点击"
+            }
+          ]
+        },
+        {
+          "title": "[P1] 结算单审批 - 二级驳回后退回草稿并保留驳回原因",
+          "priority": "P1",
+          "preconditions": "结算单已通过一级审批并进入二级审批",
+          "description": "",
+          "note": "",
+          "steps": [
+            {
+              "action": "二级审批人输入驳回原因并执行驳回",
+              "expected": "结算单退回草稿，驳回原因可见，提交人收到驳回通知"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "权限与下游",
+      "cases": [
+        {
+          "title": "[P0] 结算单审批 - ERP 落账失败时状态可追踪并通知财务",
+          "priority": "P0",
+          "preconditions": "结算单已完成全部审批；ERP 接口返回失败",
+          "description": "",
+          "note": "",
+          "steps": [
+            {
+              "action": "触发审批完成后的 ERP 落账同步",
+              "expected": "结算单保留已审批结果并标记 ERP 同步异常，财务收到通知且可继续跟踪处理"
+            }
+          ]
+        },
+        {
+          "title": "[P1] 列表导出 - 当前筛选结果与导出内容一致",
+          "priority": "P1",
+          "preconditions": "列表已按供应商、账期和审批状态筛选",
+          "description": "",
+          "note": "",
+          "steps": [
+            {
+              "action": "点击导出当前列表",
+              "expected": "导出文件仅包含当前筛选命中的结算单，字段与页面列表一致"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

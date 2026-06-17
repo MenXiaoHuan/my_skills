@@ -25,7 +25,7 @@ def _iso_now():
 def _sanitize_title(title):
     text = str(title or "").strip()
     while True:
-        updated = re.sub(r"^(?:(?:[+*\-]\s*)|(?:\d+[.)]\s+))+", "", text)
+        updated = re.sub(r"^(?:(?:[+*\-]\s*)|(?:\d+[.)]\s+))+", "", text, flags=re.IGNORECASE)
         if updated == text:
             return text
         text = updated.strip()
@@ -64,6 +64,18 @@ def _priority_marker(priority):
     return mapping.get(str(priority).strip())
 
 
+def _case_title(title, priority):
+    clean_title = _sanitize_title(title)
+    normalized_priority = str(priority or "").strip().upper()
+    if not normalized_priority:
+        return clean_title
+
+    expected_prefix = f"[{normalized_priority}] "
+    if re.match(r"^\[(?:P[0-9]+)\]\s*", clean_title, flags=re.IGNORECASE):
+        return re.sub(r"^\[(?:P[0-9]+)\]\s*", expected_prefix, clean_title, count=1, flags=re.IGNORECASE)
+    return f"{expected_prefix}{clean_title}"
+
+
 def build_content_xml(data):
     xmap = Element(f"{{{NS_CONTENT}}}xmap-content", {"version": "2.0"})
 
@@ -71,17 +83,21 @@ def build_content_xml(data):
     SubElement(sheet, f"{{{NS_CONTENT}}}title").text = "Sheet 1"
 
     root_title = data.get("root_title") or "用例集"
-    root = _topic(sheet, root_title)
+    root = _topic(sheet, root_title, note=data.get("note"))
     root_attached = _attach_children(root)
 
     for group in data.get("groups") or []:
-        group_topic = _topic(root_attached, group.get("title") or "分组")
+        group_topic = _topic(
+            root_attached,
+            group.get("title") or "分组",
+            note=group.get("note"),
+        )
         group_attached = _attach_children(group_topic)
 
         for case in group.get("cases") or []:
             case_topic = _topic(
                 group_attached,
-                case.get("title") or "用例标题",
+                _case_title(case.get("title") or "用例标题", case.get("priority")),
                 note=case.get("note"),
                 marker=_priority_marker(case.get("priority")),
             )
@@ -89,15 +105,16 @@ def build_content_xml(data):
 
             preconditions = (case.get("preconditions") or "").strip()
             description = (case.get("description") or "").strip()
-            detail_label = "前置条件" if preconditions else "文本描述"
-            detail_text = preconditions if preconditions else description
+            if preconditions:
+                preconditions_topic = _topic(case_attached, "前置条件")
+                preconditions_attached = _attach_children(preconditions_topic)
+                _topic(preconditions_attached, preconditions)
+            elif description:
+                description_topic = _topic(case_attached, "文本描述")
+                description_attached = _attach_children(description_topic)
+                _topic(description_attached, description)
 
-            detail_topic = _topic(case_attached, detail_label)
-            detail_attached = _attach_children(detail_topic)
-            if detail_text:
-                _topic(detail_attached, detail_text)
-
-            steps_topic = _topic(detail_attached, "步骤")
+            steps_topic = _topic(case_attached, "步骤")
             steps_attached = _attach_children(steps_topic)
 
             steps = case.get("steps") or []
@@ -109,7 +126,7 @@ def build_content_xml(data):
                 action = (step.get("action") or "").strip()
                 expected = (step.get("expected") or "").strip()
                 step_title = f"步骤 {index}: {action}" if action else f"步骤 {index}"
-                step_topic = _topic(steps_attached, step_title)
+                step_topic = _topic(steps_attached, step_title, note=step.get("note"))
                 step_attached = _attach_children(step_topic)
                 if expected:
                     _topic(step_attached, f"预期 {index}: {expected}")

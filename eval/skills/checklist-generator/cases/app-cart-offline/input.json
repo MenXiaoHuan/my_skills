@@ -1,0 +1,80 @@
+{
+  "root_title": "用例集",
+  "groups": [
+    {
+      "title": "在线加购",
+      "cases": [
+        {
+          "title": "[P0] 加入购物车 - 在线成功后角标和列表同步更新",
+          "priority": "P0",
+          "preconditions": "用户已登录；SKU 可售且库存充足",
+          "description": "",
+          "note": "",
+          "steps": [
+            {
+              "action": "在商品详情页点击加入购物车",
+              "expected": "提示加入成功，购物车角标增加，购物车列表出现对应 SKU"
+            }
+          ]
+        },
+        {
+          "title": "[P1] 重复加入 - 同一 SKU 数量累加",
+          "priority": "P1",
+          "preconditions": "购物车中已存在目标 SKU",
+          "description": "",
+          "note": "",
+          "steps": [
+            {
+              "action": "再次点击加入购物车",
+              "expected": "购物车中该 SKU 数量累加，不新增重复行"
+            }
+          ]
+        },
+        {
+          "title": "[P1] 库存不足 - 阻止加入并给出提示",
+          "priority": "P1",
+          "preconditions": "目标 SKU 可售但库存不足以支持本次加入",
+          "description": "",
+          "note": "",
+          "steps": [
+            {
+              "action": "点击加入购物车",
+              "expected": "加入失败并提示库存不足，购物车数量不变化"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "离线与恢复",
+      "cases": [
+        {
+          "title": "[P0] 离线加购 - 请求进入重试队列",
+          "priority": "P0",
+          "preconditions": "设备处于离线状态",
+          "description": "",
+          "note": "assumption: 离线请求会持久化到本地重试队列",
+          "steps": [
+            {
+              "action": "在离线状态下点击加入购物车",
+              "expected": "页面提示稍后同步，请求进入重试队列，当前页面保留待同步状态"
+            }
+          ]
+        },
+        {
+          "title": "[P0] 网络恢复 - 自动同步后购物车数据一致",
+          "priority": "P0",
+          "preconditions": "重试队列中存在待同步的加购请求；网络已恢复",
+          "description": "",
+          "note": "",
+          "steps": [
+            {
+              "action": "等待应用触发自动同步",
+              "expected": "待同步请求成功提交，购物车角标、列表和服务端数量一致"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

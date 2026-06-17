@@ -1,56 +1,39 @@
-# Eval 包说明：checklist-generator
+# checklist-generator eval
 
-## Skill 介绍
+外层目录只保留三个入口：
 
-`checklist-generator` 是一个用于生成测试点、详细测试用例和真实 `.xmind` 交付物的 Skill。
+- `cases/`：样例输入和期望 `.xmind` 产物
+- `baseline.json`：主基线，包含 trigger / boundary / comparative / multi-turn / artifact 五套数据
+- `README.md`：维护说明
 
-它的目标是基于需求文档、技术方案、API 说明、原型、变更说明或结构化功能描述，产出具备实现意识的测试设计结果，而不仅仅是泛化的测试清单。
+隐藏目录说明：
 
-这个 Skill 适用于多种场景，包括 Web、App、API、后台配置、数据报表以及跨系统业务流程测试。它会优先以需求和技术材料作为事实来源，在信息不足时再按知识缺口补充相关参考知识，并根据材料完整度决定输出正式版本还是 `draft`。
+- `.tools/`：校验与运行脚本
+- `.meta/`：锁文件、结果快照、历史对照文档
+- `.runtime/`：运行态对照 workspace，按需生成
 
-## 评测目的
+## Cases
 
-这个 eval 包用于评估 `checklist-generator` 是否能够从需求材料或技术材料中稳定地产出结构化、可执行、覆盖充分的测试设计结果，并在需要时输出真实 `.xmind` 文件。
+每个 case 一个目录，统一放两类文件：
 
-评测重点包括：
-- 是否正确触发并适用于当前任务
-- 是否覆盖核心范围和关键风险
-- 是否合理识别并标记 `P0` 场景
-- 是否正确处理 assumptions 和 `draft`
-- 是否遵守输出契约并生成预期交付物
+- `input.json`：标准化 case tree 输入
+- `expected.xmind`：期望 benchmark 产物
 
-## 评测范围
+## 常用命令
 
-本 eval 包覆盖以下能力：
-- skill 触发是否合理
-- 测试范围覆盖是否完整
-- `P0` 标记质量是否合适
-- assumptions 和 `draft` 行为是否正确
-- 输出契约是否满足要求
-- `.xmind` 交付物是否符合预期
-
-本 eval 包不覆盖以下内容：
-- 业务代码本身的实现正确性
-- 生成后的 XMind 查看器展示效果
-- 外部系统或第三方依赖的可用性
-
-## 通过标准
-
-一个 case 只有在以下条件全部满足时才算通过：
-- skill 被正确触发
-- 响应符合预期输出契约
-- 必需测试范围被覆盖
-- 未出现禁止行为
-- 在适用场景下正确处理了 `draft` 或 assumptions
-
-## 文件结构
-
-- `baseline.json`：该 skill 的共享评测基线与通用约束
-- `cases/`：独立维护的评测用例集合，每个文件代表一个单独 case
+- 校验基线一致性：
+  `python3 eval/skills/checklist-generator/.tools/validate_benchmark.py`
+- 检查本机 runner：
+  `python3 eval/skills/checklist-generator/.tools/check_runtime_runner.py`
+- 生成运行态对照 workspace：
+  `python3 eval/skills/checklist-generator/.tools/prepare_runtime_eval.py --force`
+- 执行运行态对照：
+  `python3 eval/skills/checklist-generator/.tools/execute_runtime_eval.py`
 
 ## 维护规则
 
-- 每个 case 只表达一个主要意图
-- 优先维护小而可组合的 case，而不是过大的混合 case
-- 当发现 bug、回归问题或提示词失败模式时，新增对应 case
-- 只有真正属于共享规则的内容才更新到 `baseline.json`
+- 新 case 先补到 `cases/`，再更新 `baseline.json`
+- 改动 `baseline.json` 后，必须同步更新 `.meta/benchmark-lock.json`
+- 提交前至少跑一次 `validate_benchmark.py`
+- 运行态对照优先复用旧版本快照，不手写伪 baseline
+- 评测结果仍统一沉淀到 `skills/checklist-generator/references/real-eval-2026-06-16.md`

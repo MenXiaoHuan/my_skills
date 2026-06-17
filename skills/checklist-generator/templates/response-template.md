@@ -1,3 +1,7 @@
+### Delivery Note
+- Hand off the generated `.xmind` file as the primary deliverable
+- Do not show a local or workspace absolute path in the final user-facing response
+
 ### Output Status
 - `final` or `draft`
 

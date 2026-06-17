@@ -1,6 +1,6 @@
 # Decision Rules
 
-Read this file only when you need to decide whether to ask follow-up questions, proceed with assumptions, or produce a draft instead of a final test design.
+Read this file only when you need to decide whether to ask follow-up questions, proceed with assumptions, or produce a draft instead of a final detailed test case set.
 
 ## Ask Vs Assume
 
@@ -28,7 +28,7 @@ Do not silently assume:
 
 ## Draft Vs Final
 
-Produce a final test design when:
+Produce a final detailed test case set when:
 - the main workflow is understandable
 - the affected systems and roles are sufficiently clear
 - critical expectations are backed by source material or clearly bounded assumptions
@@ -38,7 +38,7 @@ Produce a draft when:
 - source material is thin and the user still wants a usable first version
 - critical definitions are missing for workflow, status, role, contract, or dependency behavior
 - available materials conflict in ways that materially affect coverage
-- the result depends on assumptions that could substantially change the final case set
+- the result depends on assumptions that could substantially change the final test case set
 
 When producing a draft:
 - label it clearly as `draft`
@@ -57,4 +57,4 @@ If source materials are thin, decide in this order:
 If source materials conflict:
 - identify the conflict explicitly
 - do not silently merge contradictory expectations
-- downgrade to `draft` when the conflict materially affects the final case set
+- downgrade to `draft` when the conflict materially affects the final test case set

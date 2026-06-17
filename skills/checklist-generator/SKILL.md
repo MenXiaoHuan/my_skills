@@ -1,124 +1,70 @@
 ---
 name: "checklist-generator"
-description: "Use when the user needs structured test points, detailed test cases, coverage analysis, regression scope, or a real .xmind deliverable from requirement docs, technical designs, API specs, prototypes, change logs, or feature descriptions."
+description: "Use when the user wants detailed QA test cases or an XMind case tree derived from requirements, PRDs, technical designs, API specs, prototypes, change logs, or feature descriptions for web, app, API, backend workflow, reporting, export, or cross-system changes. Do not use for loose test points, test plans, requirement summaries, implementation proposals, code review, debugging, or unit and automation test generation."
+allowed-tools: Agent Task
 ---
 
-# Checklist Generator
+`checklist` is retained only as the skill name. The actual artifact is a structured detailed QA test case set, usually delivered as `.xmind`.
 
-Generate implementation-aware test points, detailed test cases, and a real `.xmind` file from requirement documents, technical designs, APIs, prototypes, change summaries, or structured feature descriptions.
+## Authority Map
 
-This skill is cross-domain. It is not limited to web features. Use it for web, app, API, backend configuration, data reporting, and cross-system workflow testing.
+- `references/decision-rules.md`: when deciding ask vs assume vs `draft`
+- `references/priority-rubric.md`: when `P0/P1/P2/P3` grading is uncertain
+- `references/output-rules.md`: artifact terminology, output contract, naming, quality, and XMind hierarchy
+- `examples/`: when the domain shape is similar and you need few-shot guidance
+- `templates/` and `scripts/xmind_build.py`: only when building the final `.xmind`
 
-## Use This Skill When
-
-- The user asks for test cases, test points, QA checklist generation, coverage analysis, regression scope, or release-critical scenario identification.
-- The user wants a deliverable that can drive execution, such as prioritized cases, a traceable checklist, or an XMind case tree.
-- The user wants a testing output derived from requirement materials rather than a short prose summary.
-
-## Do Not Use This Skill When
-
-- The user only wants a short feature summary without a testing deliverable.
-- The request is mainly about fixing code, debugging runtime behavior, or reviewing implementation quality.
-- The user wants implementation code rather than a test design artifact.
-
-## Operating Model
-
-Treat requirement and technical materials as the primary source of truth.
-
-Use supplementary reference skills only when those materials do not fully explain business terms, workflow semantics, role definitions, metric meanings, status logic, API contracts, or architecture dependencies.
-
-Choose the relevant reference skill based on the knowledge gap:
-- use a domain-oriented reference skill for business concepts, workflows, roles, status semantics, and metric meaning
-- use an API-oriented reference skill for request and response contracts, field meaning, validation rules, and integration behavior
-- use an architecture-oriented reference skill for cross-system dependencies, component boundaries, data flow, and upstream or downstream coupling
-
-Do not use supplementary reference skills as a substitute for clear requirement or technical documents when those documents already answer the question.
-
-Decision order:
-1. Read requirement and technical materials first.
-2. If core business, API, or architecture semantics are unclear, use the relevant reference skill.
-3. If the remaining gap still affects scope, core workflow, user roles, expected behavior, or release risk, ask follow-up questions.
-4. If only secondary details are missing, continue with explicit assumptions.
-5. If critical source material is missing or contradictory, produce a draft instead of a final test design.
-
-Default output language is Simplified Chinese. Use English only when the user explicitly asks for English.
-
-`P0` is a highlight label for release-critical scenarios, not a filter.
-
-## Progressive Disclosure
-
-Read additional files only when needed:
-
-- `references/decision-rules.md`
-- `references/output-rules.md`
-- `templates/xmind_input.template.json`
-- `templates/response-template.md`
-- `examples/web-login.md`
-- `examples/order-api-idempotency.md`
-- `scripts/xmind_build.py`
+Prefer one targeted read over bulk-loading the whole skill folder.
 
 ## Default Workflow
 
-1. Identify the feature, affected systems, release scope, users, and main risks.
-2. Read the requirement, technical design, API, prototype, and change summary.
-3. Check whether any unresolved gap affects scope, workflow meaning, role behavior, contract semantics, or system boundaries.
-4. If needed, use the relevant supplementary reference skill to close that knowledge gap.
-5. Use `references/decision-rules.md` only when you need to decide whether to ask follow-up questions, proceed with assumptions, or produce a draft.
-6. Derive test points, then expand them into detailed cases.
-7. Mark `P0` scenarios when justified, but keep full in-scope coverage.
-8. Generate a real `.xmind` file and return its absolute path first.
+1. Read the requirement, technical design, API, prototype, or change summary.
+2. Clarify scope, affected systems, roles, and release risk.
+3. Decide whether gaps require a follow-up question, an explicit assumption, or a `draft`.
+4. Split coverage by workflow, validation, permissions, state transitions, integrations, and consistency.
+5. Use `spawn` only when there are materially independent analysis tracks worth splitting.
+6. Expand coverage slices into detailed QA cases and grade priorities with the rubric.
+7. Keep each case topic title short, then write a concise `note` as the subtitle-like supplement shown under the title in XMind.
+8. Generate and deliver the final `.xmind` file.
 
-## Decision Rules
+## Analysis Pattern
 
-Use `references/decision-rules.md` only when you need finer guidance for:
-- ask vs assume decisions
-- draft vs final output decisions
-- thin or conflicting source material
+When the request is broad or the material is dense, explicitly use the word `spawn` for independent analysis tracks.
 
-## Minimum Coverage
+Preferred rhythm: `先并行, 再串行, 再并行, 再串行`.
 
-Unless the user explicitly narrows scope, cover the relevant subset of:
+Only split materially independent tracks. If `Agent` or `Task` is available, actually `spawn` them. Otherwise keep the same decomposition and execute serially. After each wave, merge findings before writing cases.
 
-- core functional flows
-- negative and validation scenarios
-- permissions and role-based access
-- boundary and data conditions
-- state transitions and workflow gating
-- integration dependencies
-- regression-sensitive paths
-- empty, loading, partial-data, and no-data behavior
-- data accuracy, reporting consistency, export correctness, and cross-view consistency where applicable
+Each track should return:
+- `scope`
+- `key risks`
+- `coverage candidates`
+- `open questions`
+- `recommended cases`
 
-## Output Rules
+## Guardrails
 
-The primary deliverable is a real `.xmind` file on disk.
-
-Always:
-- return the absolute file path first
-- keep supporting narration brief unless the user asks for more
-- explicitly mark `P0` cases when justified
-- state `本次范围未识别出 P0 场景` when no case truly qualifies
-- preserve full agreed coverage beyond `P0`
-- treat intermediate JSON as internal build data and do not present it as a user-facing output unless the user explicitly asks for debugging artifacts
-- keep group and case titles free of Markdown bullet prefixes such as `+`, `-`, `*`, or numbered list markers
-- separate confirmed information from assumptions when assumptions are used
+- Treat requirement and technical materials as the source of truth.
+- Ask follow-up questions only when the gap changes scope, workflow meaning, role behavior, expected outcomes, or release risk.
+- If only secondary details are missing, continue with explicit assumptions.
+- If critical workflow, role, contract, or dependency facts are missing or contradictory, produce a `draft` instead of a final case set.
+- `P0` is a highlight label, not a coverage filter.
+- Default output language is Simplified Chinese unless the user asks for English.
 
 ## XMind Generation
 
-1. Build a normalized JSON case tree with `root_title`, `groups`, `cases`, `priority`, `note`, `preconditions`, `description`, and `steps`.
-2. Write that JSON to an internal build file such as `.test_case_xmind_input.json`.
-3. Run:
+Use `references/output-rules.md` for the JSON schema and XMind contract.
+
+1. Build a normalized JSON case tree.
+2. Write the JSON to an internal build file such as `.test_case_xmind_input.json`.
+3. Populate `note` for each case by default. Use it for focus, risk, or business-context supplements, not for repeating the title.
+4. Keep `title` short and scannable. Put secondary explanation in `note`.
+5. Run:
 
 ```bash
 python3 scripts/xmind_build.py .test_case_xmind_input.json output.xmind
 ```
 
-4. Verify `output.xmind` exists and is non-empty before responding.
-
-## Failure Handling
-
-If the source materials conflict, identify the conflict explicitly instead of silently merging them.
-
-If the source materials are thin, use `references/decision-rules.md` only when the next action is not obvious.
+6. Verify `output.xmind` exists and is non-empty before responding.
 
 If `.xmind` generation fails, explain the exact failure and provide a fallback outline only as a failure mode.
