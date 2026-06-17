@@ -10,7 +10,11 @@ allowed-tools: Agent Task
 
 - `references/decision-rules.md`: when deciding ask vs assume vs `draft`
 - `references/priority-rubric.md`: when `P0/P1/P2/P3` grading is uncertain
-- `references/output-rules.md`: artifact terminology, output contract, naming, quality, and XMind hierarchy
+- `references/output-rules.md`: artifact terminology, output contract, naming, and XMind hierarchy
+- `references/grouping-rules.md`: when module-first structure, `其他`, and parent-child lineage matter
+- `references/quality-rules.md`: when case granularity, exception coverage, boundary judgment, or thin-case control matters
+- `references/multi-candidate-rules.md`: when dual-candidate mode is triggered or adjudication is needed
+- `references/coverage-ledger-rules.md`: when broad multi-module prompts need stable leaf-case coverage and per-module budgets
 - `examples/`: when the domain shape is similar and you need few-shot guidance
 - `templates/` and `scripts/xmind_build.py`: only when building the final `.xmind`
 
@@ -21,11 +25,18 @@ Prefer one targeted read over bulk-loading the whole skill folder.
 1. Read the requirement, technical design, API, prototype, or change summary.
 2. Clarify scope, affected systems, roles, and release risk.
 3. Decide whether gaps require a follow-up question, an explicit assumption, or a `draft`.
-4. Split coverage by workflow, validation, permissions, state transitions, integrations, and consistency.
-5. Use `spawn` only when there are materially independent analysis tracks worth splitting.
-6. Expand coverage slices into detailed QA cases and grade priorities with the rubric.
-7. Keep each case topic title short, then write a concise `note` as the subtitle-like supplement shown under the title in XMind.
-8. Generate and deliver the final `.xmind` file.
+4. Build a compact module-first case tree, then backfill permissions, exceptions, data consistency, and boundary coverage into the owning module or `其他`.
+5. Decide whether dual-candidate mode is mandatory. You MUST use dual-candidate mode when any of the following is true:
+   - the request is both cross-module and high-risk
+   - the request touches 4 or more stable modules or workflows
+   - the request includes 2 or more of: permissions, state transitions, export, external dependency failure, data correctness, multi-view or multi-role switching
+   - prior runs of the same or similar prompt showed unstable grouping, coverage, or priority behavior
+6. Use `spawn` only when there are materially independent analysis tracks worth splitting. In dual-candidate mode, explicitly `spawn` 2 candidates in parallel:
+   - Candidate A: `coverage-first`
+   - Candidate B: `quality-first`
+7. Run exception and boundary scans, then expand only meaningful coverage into detailed QA cases with priorities.
+8. If dual-candidate mode is active, require explicit Candidate A and Candidate B internal drafts, a target top-level module set, coverage ledger, per-module case budget, and an adjudication table before finalizing; otherwise self-check with `references/grouping-rules.md` and `references/quality-rules.md`.
+9. Keep each case title short, write concise `note`, build normalized JSON, and generate the final `.xmind`.
 
 ## Analysis Pattern
 
@@ -39,8 +50,28 @@ Each track should return:
 - `scope`
 - `key risks`
 - `coverage candidates`
+- `exception candidates`
+- `boundary candidates`
 - `open questions`
 - `recommended cases`
+
+The final structure should usually look like:
+- top level: stable modules or workflows
+- inside each module: happy path, state changes, permissions, exceptions, consistency, and justified boundaries
+- optional `其他`: only one compact catch-all bucket when residual cases do not clearly belong to one module
+- cross-cutting top-level groups: only when the topic truly spans multiple modules and would be awkward or misleading if forced into one owner
+
+In dual-candidate mode, the candidate roles differ on purpose:
+- `coverage-first`: more aggressive on completeness, exception expansion, permission and state splits, dependency failures, and regression-sensitive paths
+- `quality-first`: more conservative on case count, stricter on one-intent-per-case, clearer expectations, tighter lineage, and weaker-boundary rejection
+
+The adjudicator should return:
+- `shared high-value cases`
+- `candidate-only cases worth keeping`
+- `duplicates or weak cases to drop`
+- `priority conflicts to resolve`
+- `grouping or lineage fixes`
+- `final normalized case tree`
 
 ## Guardrails
 
@@ -49,6 +80,20 @@ Each track should return:
 - If only secondary details are missing, continue with explicit assumptions.
 - If critical workflow, role, contract, or dependency facts are missing or contradictory, produce a `draft` instead of a final case set.
 - `P0` is a highlight label, not a coverage filter.
+- Exception paths should be expanded by default when they are plausible within the described workflow, dependency chain, or user interaction.
+- Boundary cases are conditional: scan for them every time, but only output them when the requirement, contract, state model, timing rule, limit, or data semantics suggests a meaningful edge.
+- If no standalone boundary case is justified, keep the coverage focused and make that a deliberate outcome rather than manufacturing weak cases.
+- Prefer module-first organization over horizontal audit buckets. A structure that follows the product’s real modules is usually easier to read, review, and maintain.
+- Cross-cutting coverage such as permissions, exceptions, empty states, loading behavior, and data consistency should usually be attached to the relevant module rather than promoted to a parallel top-level branch.
+- When ownership is unclear, prefer one compact `其他` bucket over creating multiple new peer branches such as `页面交互与导航`, `数据正确性`, or `异常与兜底`.
+- Do not let the output drift into too many top-level groups. A compact, stable module tree is usually more maintainable than a fully unpacked audit outline.
+- Group naming should preserve navigation and ownership semantics. A child page, detail page, or modal flow should inherit the parent module label unless the source material clearly treats it as an independent module.
+- Dual-candidate mode is a stability tool, not a default for every request. When the mandatory trigger conditions are met, failing to use it is a workflow mistake, not a style preference.
+- Dual-candidate mode must produce explicit internal A/B drafts and an adjudication table before finalization. A single blended draft, or a claim that two perspectives were considered, is still single-pass.
+- Do not claim dual-candidate mode was used unless the internal artifacts satisfy `references/multi-candidate-rules.md`.
+- In dual-candidate mode, freeze the final top-level module set before expanding leaf cases, then reject naming drift unless the source material justifies a new stable module.
+- For broad prompts with prior leaf-count drift, use `references/coverage-ledger-rules.md` to stabilize required coverage dimensions and per-module case budgets before writing detailed cases.
+- The final output must be a single adjudicated result. Do not expose raw candidate drafts, A/B comparisons, or internal merge artifacts to the user unless the user explicitly asks for debugging output.
 - Default output language is Simplified Chinese unless the user asks for English.
 
 ## XMind Generation

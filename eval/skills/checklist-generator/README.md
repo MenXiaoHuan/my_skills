@@ -3,7 +3,7 @@
 外层目录只保留三个入口：
 
 - `cases/`：样例输入和期望 `.xmind` 产物
-- `baseline.json`：主基线，包含 trigger / boundary / comparative / multi-turn / artifact 五套数据
+- `baseline.json`：主基线，包含 trigger / boundary / comparative / multi-turn / dual-candidate / structure-quality / stability / artifact 数据
 - `README.md`：维护说明
 
 隐藏目录说明：
@@ -35,5 +35,8 @@
 - 新 case 先补到 `cases/`，再更新 `baseline.json`
 - 改动 `baseline.json` 后，必须同步更新 `.meta/benchmark-lock.json`
 - 提交前至少跑一次 `validate_benchmark.py`
+- 结构质量指标用于约束一级组数量、禁用顶层组、`其他` 是否按预期出现
+- 质量检查脚本会校验弱断言、空预期、重复标题、平均步骤数等结构化指标
+- 稳定性指标用于约束同一复杂 prompt 多次生成时的结构漂移
 - 运行态对照优先复用旧版本快照，不手写伪 baseline
-- 评测结果仍统一沉淀到 `skills/checklist-generator/references/real-eval-2026-06-16.md`
+- 真实评测结果统一沉淀到 `.meta/` 下的结果快照和对照文档

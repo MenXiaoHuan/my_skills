@@ -57,7 +57,8 @@ For mixed backend reporting features, the skill should split the analysis into i
 - single-filter and combined-filter behavior
 - chart, card, table, and export consistency
 - export success, timeout fallback, and failure fallback
-- empty state, abnormal response, and boundary coverage
+- empty state and abnormal response coverage
+- boundary cases only when the source material implies a real limit, threshold, timing window, or other meaningful edge
 
 ### Risks and Open Questions
 - need confirmation on whether analysts and admins see the same export columns
@@ -155,5 +156,7 @@ When the skill needs to build the actual `.xmind` file, the normalized JSON shou
 - Use `spawn` to separate permission, filter, consistency, and export-fallback analysis before merging.
 - Treat role visibility, data consistency, and timeout fallback as distinct verification intents rather than one merged case.
 - When fallback behavior exists, verify both user messaging and state retention, such as preserved filters and preserved page context.
+- In this example, exception coverage is mandatory because export success, timeout, and failure are explicit requirement branches.
+- Boundary coverage should be scanned, but only promoted to standalone cases if the requirement or contract actually defines meaningful edges such as export size limits, date-range limits, retry windows, or polling thresholds.
 - Keep the `[P0]` or `[P1]` title prefix aligned with the `priority` field and XMind marker.
 - Keep the case `title` scannable and move explanatory context into `note` so the XMind topic can show a subtitle-like supplement.

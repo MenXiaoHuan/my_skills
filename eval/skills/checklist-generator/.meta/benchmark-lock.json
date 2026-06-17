@@ -1,11 +1,15 @@
 {
   "version": 1,
-  "benchmark_sha256": "014c248af40d1d4bb85dc7f509286fdb1f6d506dcacfce1b019b8f4a17f1bbde",
+  "benchmark_sha256": "3be58c7915326b8b74ca97001c8136bb54effa095a86e1965bae032ffa080798",
   "expected_suite_sizes": {
     "trigger_suite": 8,
     "near_boundary_suite": 10,
     "comparative_suite": 4,
     "multi_turn_suite": 3,
+    "dual_candidate_suite": 1,
+    "structure_quality_suite": 2,
+    "coverage_ledger_suite": 3,
+    "stability_suite": 1,
     "artifact_suite": 4
   },
   "expected_result_summaries": {

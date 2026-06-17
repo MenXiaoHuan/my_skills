@@ -184,6 +184,268 @@
       "expected_boundary": "recover-from-test-points-wording"
     }
   ],
+  "dual_candidate_suite": [
+    {
+      "id": "dual_candidate_001",
+      "prompt": "请基于 BP3.0 Market Competitive Landscape 页面需求生成详细测试用例并交付 xmind。页面包含全局筛选器、Market Landscape、Trend Analysis、Audience Persona、Competitive Landscape、Creative Insights、Creators Insights 等模块；需要覆盖多视角切换、权限、导出、数据正确性、接口异常、空态和模块联动。历史上同类 prompt 多次生成时结构和覆盖波动明显。",
+      "expected_mode": "dual-candidate",
+      "required_trigger_reasons": [
+        "4_or_more_modules",
+        "2_or_more_risk_dimensions",
+        "historically_unstable"
+      ],
+      "required_internal_artifacts": [
+        "candidate_a_draft",
+        "candidate_b_draft",
+        "adjudication_table",
+        "execution_gate",
+        "candidate_roles_different",
+        "final_merge_decision_notes",
+        "dropped_case_log",
+        "coverage_ledger",
+        "per_module_case_budget",
+        "budget_variance_notes",
+        "candidate_artifacts_hidden_from_user"
+      ]
+    }
+  ],
+  "structure_quality_suite": [
+    {
+      "id": "structure_001",
+      "input_json": "cases/module-tree-with-other/input.json",
+      "max_top_level_groups": 8,
+      "required_top_level_groups": [
+        "全局筛选器",
+        "Market Landscape",
+        "Trend Analysis",
+        "其他"
+      ],
+      "forbidden_top_level_groups": [
+        "页面交互与导航",
+        "数据正确性",
+        "异常与兜底"
+      ],
+      "requires_other_group": true,
+      "max_weak_expectations": 0,
+      "max_empty_expected": 0,
+      "max_duplicate_titles": 0,
+      "min_average_steps_per_case": 1.0
+    },
+    {
+      "id": "structure_002",
+      "input_json": "cases/crm-import-review-center/input.json",
+      "max_top_level_groups": 4,
+      "forbidden_top_level_groups": [
+        "页面交互与导航",
+        "数据正确性",
+        "异常与兜底"
+      ],
+      "requires_other_group": false,
+      "max_weak_expectations": 0,
+      "max_empty_expected": 0,
+      "max_duplicate_titles": 0,
+      "min_average_steps_per_case": 1.0
+    }
+  ],
+  "coverage_ledger_suite": [
+    {
+      "id": "coverage_ledger_001",
+      "artifact_json": "cases/coverage-ledger-bp-competitive/input.json",
+      "target_modules": [
+        "全局筛选器",
+        "Market Landscape",
+        "Trend Analysis",
+        "Audience Persona",
+        "Competitive Landscape",
+        "Creative Insights",
+        "Creators Insights",
+        "其他"
+      ],
+      "required_dimensions": [
+        "core",
+        "data_correctness",
+        "exception",
+        "empty_state"
+      ]
+    },
+    {
+      "id": "coverage_ledger_002",
+      "artifact_json": "cases/coverage-ledger-supplier-approval/input.json",
+      "target_modules": [
+        "结算单创建",
+        "审批流转",
+        "ERP同步",
+        "列表筛选与导出"
+      ],
+      "required_dimensions": [
+        "core",
+        "permission",
+        "state_transition",
+        "exception"
+      ]
+    },
+    {
+      "id": "coverage_ledger_003",
+      "artifact_json": "cases/coverage-ledger-crm-import/input.json",
+      "target_modules": [
+        "导入与校验",
+        "审核与权限",
+        "客户池同步",
+        "结果导出"
+      ],
+      "required_dimensions": [
+        "core",
+        "permission",
+        "exception",
+        "data_correctness"
+      ]
+    }
+  ],
+  "stability_suite": [
+    {
+      "id": "stability_001",
+      "prompt": "请基于 BP3.0 Market Competitive Landscape 页面需求生成详细测试用例并交付 xmind。页面包含全局筛选器、Market Landscape、Trend Analysis、Audience Persona、Competitive Landscape、Creative Insights、Creators Insights 等模块；需要覆盖多视角切换、权限、导出、数据正确性、接口异常、空态和模块联动。",
+      "runs": 3,
+      "metrics": [
+        "top_level_group_count",
+        "forbidden_top_level_groups",
+        "requires_other_group",
+        "case_count",
+        "priority_distribution"
+      ],
+      "acceptance": {
+        "max_top_level_group_delta": 2,
+        "max_leaf_count_delta": 10,
+        "forbidden_top_level_groups": [
+          "页面交互与导航",
+          "数据正确性",
+          "异常与兜底",
+          "页面入口与权限控制",
+          "页面初始化"
+        ],
+        "target_top_level_groups": [
+          "全局筛选器",
+          "Market Landscape",
+          "Trend Analysis",
+          "Audience Persona",
+          "Competitive Landscape",
+          "Creative Insights",
+          "Creators Insights",
+          "其他"
+        ],
+        "required_coverage_dimensions": [
+          "core",
+          "data_correctness",
+          "exception",
+          "empty_state",
+          "permission",
+          "export",
+          "multi_view"
+        ],
+        "per_module_case_budget": {
+          "全局筛选器": [
+            12,
+            20
+          ],
+          "Market Landscape": [
+            18,
+            28
+          ],
+          "Trend Analysis": [
+            18,
+            28
+          ],
+          "Audience Persona": [
+            14,
+            24
+          ],
+          "Competitive Landscape": [
+            20,
+            32
+          ],
+          "Creative Insights": [
+            28,
+            42
+          ],
+          "Creators Insights": [
+            20,
+            34
+          ],
+          "其他": [
+            4,
+            12
+          ]
+        },
+        "requires_other_group_when_residual_exists": true
+      },
+      "observed_failure_examples": [
+        {
+          "case_id": "14893716",
+          "top_level_group_count": 9,
+          "leaf_count": 139,
+          "top_level_groups": [
+            "全局筛选与页面初始化",
+            "Market Landscape - Overall Trend",
+            "Demand & Value Drivers",
+            "Trend Analysis",
+            "Audience Persona",
+            "Competitive Landscape",
+            "Creative Insights",
+            "Creators Insights",
+            "其他"
+          ]
+        },
+        {
+          "case_id": "14893804",
+          "top_level_group_count": 10,
+          "leaf_count": 177,
+          "top_level_groups": [
+            "页面入口与权限控制",
+            "全局筛选器",
+            "Market Landscape 概览",
+            "Vertical Demand & Value Drivers",
+            "Trend Analysis",
+            "Audience Persona",
+            "Competitive Landscape",
+            "Creative Insights",
+            "Creator Insights",
+            "其他"
+          ]
+        },
+        {
+          "case_id": "14893815",
+          "top_level_group_count": 9,
+          "leaf_count": 167,
+          "top_level_groups": [
+            "页面入口与权限控制",
+            "全局筛选器",
+            "Market Landscape",
+            "Trend Analysis",
+            "Audience Persona",
+            "Competitive Landscape",
+            "Creative Insights",
+            "Creators Insights",
+            "其他"
+          ]
+        }
+      ],
+      "residual_drift_examples": [
+        {
+          "case_id": "14896143",
+          "leaf_count": 157
+        },
+        {
+          "case_id": "14896123",
+          "leaf_count": 154
+        },
+        {
+          "case_id": "14896088",
+          "leaf_count": 165
+        }
+      ],
+      "failure_reason": "Observed outputs recognized the complex BP prompt but drifted in top-level module boundaries, leaf count, and dual-candidate execution evidence."
+    }
+  ],
   "artifact_suite": [
     {
       "id": "artifact_001",

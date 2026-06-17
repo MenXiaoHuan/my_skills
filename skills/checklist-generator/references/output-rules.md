@@ -24,6 +24,7 @@ Always:
 - mark `P0` cases explicitly when justified
 - state assumptions when source material is incomplete
 - call out document conflicts instead of silently merging contradictions
+- if multi-candidate generation is used internally, merge and adjudicate before responding so the user sees one final deliverable rather than multiple competing drafts
 
 Do not:
 - expose a local or workspace absolute path as the main user-facing result
@@ -31,6 +32,7 @@ Do not:
 - return only a prose summary when the user expects test cases
 - invent domain-specific business rules without a clear source or an explicit assumption label
 - use `P0` as a filter that suppresses `P1/P2/P3`
+- expose raw candidate A/B outputs, internal compare notes, or merge scratchpads unless the user explicitly asks for them
 
 If generation fails, explain the exact failure and provide a fallback outline only as a failure mode.
 
@@ -50,53 +52,32 @@ Title hygiene:
 - keep the title prefix aligned with the `priority` field; they must not disagree
 - use the `priority` field and XMind marker rendering as the structured source of truth
 - prefer short topic titles; move secondary explanation, risk reminder, or observation point into `note` instead of overloading the title
+- preserve parent-child lineage in group titles when the child page, drawer, modal, tab, or sub-flow is entered from a parent module; prefer `Top10 Videos - 视频详情` over a detached top-level group like `视频详情`
+- only let a child page become a top-level group when the source material clearly describes it as an independent module with its own stable entry, ownership boundary, or release scope
+
+## Related Rule Files
+
+- Use `grouping-rules.md` when deciding module-first structure, `其他`, top-level groups, or parent-child lineage.
+- Use `quality-rules.md` when deciding case granularity, exception coverage, boundary judgment, or thin-case control.
+- Use `multi-candidate-rules.md` when dual-candidate mode is mandatory or candidate adjudication is needed.
+- Use `priority-rubric.md` when priority grading is uncertain.
 
 ## Quality Rules
 
-Always:
-- keep one case focused on one verification intent
-- keep `前置条件` limited to setup, data state, role state, or environment state
-- put actions only in `步骤`
-- make expected results observable, concrete, and verifiable
-- split cases when role, state, request contract, or expected outcome changes
-- cover single-variable behavior first, then add high-risk combinations or pairwise interactions
-- write a concise `note` for each case topic by default so XMind can show a subtitle-like supplement under the title
-- keep `note` short and explanatory, usually one sentence or one clause, such as the business intent, focus point, or key risk being verified
-
-Avoid:
-- merged mega-cases with multiple unrelated assertions
-- vague expectations such as `展示正常` or `返回正确结果`
-- putting steps or expectations inside `前置条件`
-- repeating the full title verbatim inside `note`
+Default case-quality guidance lives in `quality-rules.md`. Keep this file focused on the final artifact contract.
 
 ## Priority Model
 
-- `P0`: Release-critical path, launch blocker, or severe failure on a core workflow
-- `P1`: High-value or high-risk behavior with strong business or operational impact
-- `P2`: Important but non-blocking scenario with moderate impact or fallback
-- `P3`: Low-risk, low-frequency, cosmetic, or optional coverage
+Use `priority-rubric.md` when priority grading is uncertain.
 
-Rating rules:
-- use `P0` when failure blocks launch, blocks a core money path, breaks a core reporting truth source, causes irreversible data loss, creates severe permission leakage, or makes a primary workflow unavailable
-- use `P1` when failure does not block launch but materially harms a high-value workflow, core operator efficiency, or major downstream correctness
-- use `P2` when failure is important but recoverable, bounded in scope, or has a reasonable workaround
-- use `P3` when failure is low-risk, low-frequency, cosmetic, or affects non-critical convenience behavior
-
-Quick heuristics:
-- ask whether the release should be stopped if this case fails
-- ask whether the failure affects a core workflow, core role, core metric, or externally visible correctness
-- ask whether the failure spreads to other systems, exports, notifications, or downstream decisions
-- downgrade when the issue is recoverable, scoped, and does not mislead users or operators in a critical path
-
-If no case truly qualifies, explicitly state:
-
-`本次范围未识别出 P0 场景`
+If no case truly qualifies as `P0`, explicitly state `本次范围未识别出 P0 场景`.
 
 ## XMind Contract
 
 Preferred hierarchy:
 - Root topic: `用例集`
 - Group node: a short module or workflow label
+- Optional subgroup node: use when multiple sibling modules clearly belong to the same business parent
 - Test case node: one topic per case, with `note` populated by default
 - Optional detail node under case: `前置条件` when setup is needed
 - Optional detail node under case: `文本描述` when narrative context is needed and setup is not needed
@@ -105,9 +86,18 @@ Preferred hierarchy:
 
 Normalized JSON fields:
 - root: `root_title`, optional `note`
-- group: `title`, optional `note`, `cases`
+- group: `title`, optional `note`, optional `groups`, optional `cases`
 - case: `title`, `priority`, recommended `note`, optional `preconditions`, optional `description`, `steps`
 - step: `action`, `expected`, optional `note`
+
+Shared parent grouping rules:
+- prefer flat group titles by default when generating normalized JSON; let the builder auto-merge a shared parent during XMind rendering
+- use explicit nested `groups` only when the source material already contains a clear business hierarchy that must be preserved as-is
+- when input is still flat, the builder may auto-merge sibling groups into a shared parent if at least 2 group titles match `共同父节点 - 子模块`
+- auto-merge only when the shared prefix is a real business domain label, not a generic word such as `页面`, `模块`, `列表`, `功能`, or similar placeholders
+- after auto-merge, the shared parent is only a structure node; the original child groups keep their own `cases`, `note`, and nested `groups`
+- if the shared prefix is ambiguous or appears only once, keep the original flat structure
+- if a detail page or subordinate view belongs to a parent workflow, encode that relationship in the group title before rendering so the builder can preserve the intended hierarchy instead of treating it as a separate top-level module
 
 Priority mapping:
 - `P0` -> `priority-1`

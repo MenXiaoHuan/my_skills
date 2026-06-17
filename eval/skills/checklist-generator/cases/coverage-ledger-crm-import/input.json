@@ -1,0 +1,86 @@
+{
+  "case_id": "coverage_ledger_crm_001",
+  "target_modules": [
+    "导入与校验",
+    "审核与权限",
+    "客户池同步",
+    "结果导出"
+  ],
+  "required_dimensions": [
+    "core",
+    "permission",
+    "exception",
+    "data_correctness"
+  ],
+  "coverage_ledger": [
+    {
+      "module": "导入与校验",
+      "covered_dimensions": [
+        "core",
+        "permission",
+        "exception",
+        "data_correctness",
+        "empty_state"
+      ],
+      "intentionally_skipped_dimensions": {}
+    },
+    {
+      "module": "审核与权限",
+      "covered_dimensions": [
+        "core",
+        "permission",
+        "exception",
+        "data_correctness",
+        "state_transition"
+      ],
+      "intentionally_skipped_dimensions": {}
+    },
+    {
+      "module": "客户池同步",
+      "covered_dimensions": [
+        "core",
+        "permission",
+        "exception",
+        "data_correctness",
+        "dependency_failure"
+      ],
+      "intentionally_skipped_dimensions": {}
+    },
+    {
+      "module": "结果导出",
+      "covered_dimensions": [
+        "core",
+        "permission",
+        "exception",
+        "data_correctness",
+        "export"
+      ],
+      "intentionally_skipped_dimensions": {}
+    }
+  ],
+  "per_module_case_budget": {
+    "导入与校验": [
+      10,
+      16
+    ],
+    "审核与权限": [
+      8,
+      14
+    ],
+    "客户池同步": [
+      6,
+      12
+    ],
+    "结果导出": [
+      5,
+      10
+    ]
+  },
+  "final_case_counts": {
+    "导入与校验": 14,
+    "审核与权限": 11,
+    "客户池同步": 9,
+    "结果导出": 7
+  },
+  "budget_variance_notes": {}
+}

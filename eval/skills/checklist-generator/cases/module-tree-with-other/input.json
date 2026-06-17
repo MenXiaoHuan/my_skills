@@ -1,0 +1,69 @@
+{
+  "root_title": "用例集",
+  "groups": [
+    {
+      "title": "全局筛选器",
+      "cases": [
+        {
+          "title": "[P1] 全局筛选器 - 切换行业 - 刷新页面模块数据",
+          "priority": "P1",
+          "note": "验证全局筛选上下文会驱动页面核心模块刷新。",
+          "steps": [
+            {
+              "action": "切换目标行业筛选",
+              "expected": "页面核心模块按新行业上下文刷新，旧行业数据不残留"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Market Landscape",
+      "cases": [
+        {
+          "title": "[P0] Market Landscape - 展示核心指标 - 与接口返回一致",
+          "priority": "P0",
+          "note": "核心指标是页面判断市场表现的主要依据。",
+          "steps": [
+            {
+              "action": "打开 Market Landscape 模块并对比接口数据",
+              "expected": "页面展示的核心指标值、单位和口径与接口返回一致"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Trend Analysis",
+      "cases": [
+        {
+          "title": "[P1] Trend Analysis - 切换时间粒度 - 趋势图重新聚合",
+          "priority": "P1",
+          "note": "验证趋势图按当前时间粒度重新计算。",
+          "steps": [
+            {
+              "action": "从 DAY 切换到 WEEK",
+              "expected": "趋势图点位、横轴和聚合结果按 WEEK 口径刷新"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "其他",
+      "cases": [
+        {
+          "title": "[P2] 全局参数 - 缺失必要筛选参数 - 页面安全兜底",
+          "priority": "P2",
+          "note": "残余全局参数校验收口到其他，不单独创建异常顶层组。",
+          "steps": [
+            {
+              "action": "构造缺失必要筛选参数的页面请求",
+              "expected": "页面给出可识别的错误处理或安全兜底，不展示误导性数据"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

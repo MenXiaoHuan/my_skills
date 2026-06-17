@@ -1,0 +1,88 @@
+{
+  "case_id": "coverage_ledger_approval_001",
+  "target_modules": [
+    "结算单创建",
+    "审批流转",
+    "ERP同步",
+    "列表筛选与导出"
+  ],
+  "required_dimensions": [
+    "core",
+    "permission",
+    "state_transition",
+    "exception"
+  ],
+  "coverage_ledger": [
+    {
+      "module": "结算单创建",
+      "covered_dimensions": [
+        "core",
+        "permission",
+        "state_transition",
+        "exception",
+        "data_correctness"
+      ],
+      "intentionally_skipped_dimensions": {}
+    },
+    {
+      "module": "审批流转",
+      "covered_dimensions": [
+        "core",
+        "permission",
+        "state_transition",
+        "exception",
+        "notification"
+      ],
+      "intentionally_skipped_dimensions": {}
+    },
+    {
+      "module": "ERP同步",
+      "covered_dimensions": [
+        "core",
+        "permission",
+        "state_transition",
+        "exception",
+        "dependency_failure"
+      ],
+      "intentionally_skipped_dimensions": {}
+    },
+    {
+      "module": "列表筛选与导出",
+      "covered_dimensions": [
+        "core",
+        "permission",
+        "exception",
+        "export",
+        "data_correctness"
+      ],
+      "intentionally_skipped_dimensions": {
+        "state_transition": "列表筛选与导出不改变审批状态，仅校验当前状态下的查询和导出一致性"
+      }
+    }
+  ],
+  "per_module_case_budget": {
+    "结算单创建": [
+      8,
+      14
+    ],
+    "审批流转": [
+      12,
+      20
+    ],
+    "ERP同步": [
+      8,
+      14
+    ],
+    "列表筛选与导出": [
+      6,
+      12
+    ]
+  },
+  "final_case_counts": {
+    "结算单创建": 11,
+    "审批流转": 16,
+    "ERP同步": 10,
+    "列表筛选与导出": 9
+  },
+  "budget_variance_notes": {}
+}

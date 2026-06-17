@@ -1,6 +1,7 @@
 ### Delivery Note
 - Hand off the generated `.xmind` file as the primary deliverable
 - Do not show a local or workspace absolute path in the final user-facing response
+- If multiple internal candidates were generated, expose only the adjudicated final result unless the user explicitly requests debug artifacts
 
 ### Output Status
 - `final` or `draft`
@@ -25,3 +26,7 @@
 
 ### Risks and Open Questions
 - List unresolved conflicts, missing rules, or setup gaps only when needed
+
+### Internal Only
+- Candidate A/B comparison notes, merge scratchpads, and rubric scoring are internal workflow artifacts and should not appear in the normal user-facing response
+- For dual-candidate mode, use `templates/multi_candidate_adjudication.template.md` internally before building the final `.xmind`
