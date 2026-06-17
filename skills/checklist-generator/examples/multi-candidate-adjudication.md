@@ -1,6 +1,6 @@
 # Example: Dual-Candidate Adjudication For A High-Risk Workflow
 
-Use this example when the request is long, high-risk, cross-module, or historically unstable enough that a single-pass result is likely to drift in coverage or structure.
+Use this example to understand the default dual-candidate workflow for a high-risk, cross-module request.
 
 ## When To Use
 
@@ -9,7 +9,7 @@ Use this example when the request is long, high-risk, cross-module, or historica
 - prompts that are known to oscillate between over-coverage and under-coverage
 - cases where one run usually has better coverage while another has cleaner grouping and stronger case quality
 
-This mode is not optional for requests of this shape. A request with multiple stable modules plus approval, export, notification, or external-sync risk should not stay in single-pass mode.
+This mode is not optional. A request with multiple stable modules plus approval, export, notification, or external-sync risk especially needs strict candidate separation and adjudication.
 
 ## Goal
 
@@ -20,7 +20,7 @@ Generate two internal candidate case trees in parallel, then adjudicate them int
 
 The user should only receive the final adjudicated `.xmind` result, not the raw candidate drafts.
 
-Do not respond with “single-pass is enough” for this class of request. The whole point of this workflow is to reduce drift in coverage, grouping, and priority decisions across runs.
+Do not respond with “single-pass is enough”. The whole point of this workflow is to reduce drift in coverage, grouping, and priority decisions across runs.
 
 An implicit mental comparison is not enough. The workflow must create explicit internal Candidate A and Candidate B drafts before adjudication. The drafts are internal and should not be shown to the user by default.
 

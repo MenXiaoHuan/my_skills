@@ -1,23 +1,19 @@
 # Multi-Candidate Rules
 
-Read this file when dual-candidate mode is triggered or when adjudicating multiple candidate case trees.
+Read this file for every detailed QA case generation request.
 
-## Mandatory Trigger
+## Default Requirement
 
-Dual-candidate mode is mandatory when any of the following is true:
+Dual-candidate mode is mandatory for this skill. Do not use single-pass generation.
 
-- the request is both cross-module and high-risk
-- the request touches 4 or more stable modules or workflows
-- the request includes 2 or more of: permissions, state transitions, export, external dependency failure, data correctness, multi-view switching, multi-role switching
-- the same or similar prompt has already shown unstable grouping, coverage, or priority behavior across runs
+Every run must:
 
-When one mandatory condition is met:
-
-- do not use single-pass mode
-- do not explain away the complexity and proceed with one draft anyway
-- always produce Candidate A and Candidate B before adjudication
-- do not treat “thinking from two perspectives” as dual-candidate mode
-- each candidate must have its own explicit candidate summary and normalized case-tree draft before adjudication starts
+- produce Candidate A and Candidate B before adjudication
+- keep Candidate A and Candidate B as separate drafts
+- assign different roles and tradeoffs to each candidate
+- use an adjudication table before finalizing
+- avoid treating “thinking from two perspectives” as dual-candidate mode
+- keep candidate drafts internal unless the user explicitly asks for debugging output
 
 ## Execution Gate
 
@@ -35,7 +31,7 @@ Before finalizing, check these gates:
 - budget variance notes exist for any module outside its planned range
 - raw candidate drafts and adjudication notes are hidden from the user-facing response unless the user explicitly asks for debugging output
 
-If any gate is missing, dual-candidate mode was not completed. Return to candidate generation or mark the run as single-pass internally; do not claim dual-candidate compliance.
+If any gate is missing, dual-candidate mode was not completed. Return to candidate generation; do not finalize or claim dual-candidate compliance.
 
 ## Candidate Split
 
@@ -91,16 +87,18 @@ If `Agent` or `Task` is available, actually spawn Candidate A and Candidate B as
 
 ## Stability Convergence
 
-For prompts that previously produced unstable output, adjudication must converge the final tree before writing cases:
+Adjudication must converge the final tree before writing cases:
 
 - choose a compact target top-level module set before expanding leaf cases
 - create a coverage ledger and per-module case budget for that module set
+- apply the reference coverage floor when a trusted reference case set exists
 - rename near-synonym modules to the target names instead of allowing run-to-run wording drift
 - keep child pages, detail pages, drawers, and drill-downs under the parent module
 - backfill audit-style coverage into owning modules before creating new top-level groups
 - use at most one `其他` bucket for residual checks that are real but do not belong to a stable module
 - compare final top-level groups against the target module set and explain any intentional deviation in internal notes
 - compare final per-module case counts against budget and explain any variance
+- reject final trees that are structurally stable but fall below the reference coverage floor
 
 Do not use dual-candidate mode to inflate case count. Its purpose is to combine high-value coverage with a stable, reviewable final structure.
 

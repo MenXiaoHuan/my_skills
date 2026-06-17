@@ -158,10 +158,6 @@ def validate() -> None:
 
     for case in benchmark.get("dual_candidate_suite", []):
         require(case.get("expected_mode") == "dual-candidate", f"{case['id']} must expect dual-candidate mode")
-        require(
-            len(case.get("required_trigger_reasons", [])) > 0,
-            f"{case['id']} must record at least one dual-candidate trigger reason",
-        )
         required_artifacts = set(case.get("required_internal_artifacts", []))
         required_dual_candidate_artifacts = {
             "candidate_a_draft",
@@ -248,6 +244,19 @@ def validate() -> None:
             {"core", "data_correctness", "exception", "empty_state"}.issubset(set(required_coverage_dimensions)),
             f"{case['id']} must define required coverage dimensions for ledger checks",
         )
+        if "reference_leaf_count" in acceptance or "min_reference_coverage_ratio" in acceptance:
+            reference_leaf_count = int(acceptance.get("reference_leaf_count", 0))
+            min_reference_ratio = float(acceptance.get("min_reference_coverage_ratio", 0))
+            require(reference_leaf_count > 0, f"{case['id']} must define a positive reference_leaf_count")
+            require(
+                0.5 <= min_reference_ratio <= 1.0,
+                f"{case['id']} min_reference_coverage_ratio must be between 0.5 and 1.0",
+            )
+            min_leaf_count_floor = int(reference_leaf_count * min_reference_ratio)
+            require(
+                min_leaf_count_floor > acceptance["max_leaf_count_delta"],
+                f"{case['id']} reference coverage floor must be stronger than drift tolerance",
+            )
         observed_failures = case.get("observed_failure_examples", [])
         if observed_failures:
             require(len(observed_failures) >= 3, f"{case['id']} must record at least 3 observed failure examples")
@@ -284,6 +293,17 @@ def validate() -> None:
             require(
                 max(residual_leaf_counts) - min(residual_leaf_counts) > acceptance["max_leaf_count_delta"],
                 f"{case['id']} residual drift examples must exceed the hardened leaf-count threshold",
+            )
+        undercoverage_examples = case.get("undercoverage_examples", [])
+        if undercoverage_examples:
+            reference_leaf_count = int(acceptance.get("reference_leaf_count", 0))
+            min_reference_ratio = float(acceptance.get("min_reference_coverage_ratio", 0))
+            require(reference_leaf_count > 0, f"{case['id']} undercoverage checks require reference_leaf_count")
+            require(min_reference_ratio > 0, f"{case['id']} undercoverage checks require min_reference_coverage_ratio")
+            min_leaf_count_floor = int(reference_leaf_count * min_reference_ratio)
+            require(
+                any(int(item["leaf_count"]) < min_leaf_count_floor for item in undercoverage_examples),
+                f"{case['id']} undercoverage examples must fall below the reference coverage floor",
             )
 
     require(COMPARATIVE_EVAL_PATH.exists(), f"missing comparative eval document: {COMPARATIVE_EVAL_PATH}")

@@ -72,7 +72,7 @@
 
 先并行拿到各自的风险和候选 case，再串行汇总，最后统一生成结果。
 
-如果需求特别复杂，或者历史上单次输出不稳定，还可以进入双候选模式：
+详细用例生成默认进入双候选模式：
 
 - Candidate A：coverage-first
 - Candidate B：quality-first
@@ -87,7 +87,7 @@
 - `references/output-rules.md`：输出契约、命名、XMind 层级
 - `references/grouping-rules.md`：模块优先、横切回填、`其他`、父子归属
 - `references/quality-rules.md`：case 粒度、异常覆盖、边界判断、薄 case 控制
-- `references/multi-candidate-rules.md`：双候选触发条件与裁决合并
+- `references/multi-candidate-rules.md`：默认双候选流程与裁决合并
 - `references/priority-rubric.md`：`P0/P1/P2/P3` 判级标准
 
 ## 目录结构
@@ -117,7 +117,7 @@ skills/checklist-generator/
 | --- | --- | --- |
 | 登录、鉴权、账号状态、MFA、锁定 | `examples/web-login.md` | 账号密码、验证码、锁定窗口、登录成功/失败 |
 | API 合约、幂等、冲突、重试、并发 | `examples/order-api-idempotency.md` | `Idempotency-Key`、409、202、重复请求、处理中 |
-| 复杂分析页、Competitive Landscape、模块树与横切回填 | `examples/competitive-landscape-module-tree.md` | BP3.0、Market Landscape、Trend、Persona、Creative/Creator、模块多且横切风险多 |
+| 复杂分析页、Competitive Landscape、模块树与横切回填 | `examples/competitive-landscape-module-tree.md` | Market Landscape、Trend、Persona、Creative/Creator、模块多且横切风险多 |
 | 报表分析、维度切换、筛选联动、数据一致性、下载 | `examples/trend-analysis-reporting.md` | 视角切换、时间粒度、driverTag、图表/下载一致性、Fun Facts |
 | 权限控制、后台报表、导出成功/超时/失败回退、下载中心 | `examples/permission-report-export.md` | 角色差异、导出按钮、下载中心、超时回退、筛选保留 |
 | 高风险长需求、跨模块流程、单次输出波动较大 | `examples/multi-candidate-adjudication.md` | 审批+导出+同步+通知、覆盖与结构易摇摆、需要更稳的最终版 |

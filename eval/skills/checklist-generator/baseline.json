@@ -189,11 +189,6 @@
       "id": "dual_candidate_001",
       "prompt": "请基于 BP3.0 Market Competitive Landscape 页面需求生成详细测试用例并交付 xmind。页面包含全局筛选器、Market Landscape、Trend Analysis、Audience Persona、Competitive Landscape、Creative Insights、Creators Insights 等模块；需要覆盖多视角切换、权限、导出、数据正确性、接口异常、空态和模块联动。历史上同类 prompt 多次生成时结构和覆盖波动明显。",
       "expected_mode": "dual-candidate",
-      "required_trigger_reasons": [
-        "4_or_more_modules",
-        "2_or_more_risk_dimensions",
-        "historically_unstable"
-      ],
       "required_internal_artifacts": [
         "candidate_a_draft",
         "candidate_b_draft",

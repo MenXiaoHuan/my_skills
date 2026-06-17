@@ -59,7 +59,7 @@ Title hygiene:
 
 - Use `grouping-rules.md` when deciding module-first structure, `其他`, top-level groups, or parent-child lineage.
 - Use `quality-rules.md` when deciding case granularity, exception coverage, boundary judgment, or thin-case control.
-- Use `multi-candidate-rules.md` when dual-candidate mode is mandatory or candidate adjudication is needed.
+- Use `multi-candidate-rules.md` for the default dual-candidate workflow and candidate adjudication.
 - Use `priority-rubric.md` when priority grading is uncertain.
 
 ## Quality Rules

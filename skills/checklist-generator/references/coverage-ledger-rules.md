@@ -1,6 +1,6 @@
 # Coverage Ledger Rules
 
-Read this file when a broad prompt has shown leaf-case count drift, or when dual-candidate mode is active for a multi-module requirement.
+Read this file for stabilizing leaf-case coverage, module budgets, and coverage-vs-quality tradeoffs.
 
 ## Purpose
 
@@ -24,17 +24,6 @@ Before expanding leaf cases, create an internal table with:
 - planned case budget: `[min, max]`
 - notes for dimensions intentionally skipped
 
-For BP3.0 Market Competitive Landscape style prompts, start from this module set unless the source material clearly differs:
-
-- `全局筛选器`
-- `Market Landscape`
-- `Trend Analysis`
-- `Audience Persona`
-- `Competitive Landscape`
-- `Creative Insights`
-- `Creators Insights`
-- `其他`
-
 ## Budget Rules
 
 - Use a range, not a fixed number. A range allows valid consolidation without hiding large drift.
@@ -42,6 +31,20 @@ For BP3.0 Market Competitive Landscape style prompts, start from this module set
 - If the final count is outside budget, record a budget variance note before finalizing.
 - Do not add thin cases just to hit the upper bound.
 - Do not drop meaningful exception, data correctness, or empty-state coverage just to hit the lower bound.
+- A budget is not a coverage target by itself. When a trusted reference or prior high-quality case set exists, set a reference coverage floor before finalizing.
+- If the final count is near the lower budget bound, re-check missing scenario families before accepting the result.
+
+## Reference Coverage Floor
+
+When a trusted reference case set is available:
+
+- record the reference case id and reference leaf count internally
+- set `min_reference_coverage_ratio`, usually `0.85` for broad multi-module product pages
+- compare the final leaf count against `reference_leaf_count * min_reference_coverage_ratio`
+- if the final count is below the floor, return to coverage expansion instead of finalizing
+- prefer adding missing scenario families over splitting thin display checks
+
+Do not hardcode product names, reference ids, or reference counts into the generic workflow. They belong in eval fixtures, examples, or user-provided context.
 
 ## Merge Rules
 
