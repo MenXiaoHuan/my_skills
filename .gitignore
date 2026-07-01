@@ -1,2 +1,5 @@
 .DS_Store
 tests/
+__pycache__/
+*.pyc
+eval/skills/checklist-generator/.runtime/
