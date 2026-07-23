@@ -141,6 +141,26 @@ def validate_suite_shape(benchmark: dict) -> None:
         require(isinstance(benchmark.get(suite_name), list), f"{suite_name} must be a list")
 
 
+def validate_structure_quality_config(case: dict) -> None:
+    case_id = case["id"]
+    for key in (
+        "max_trailing_chinese_periods",
+        "max_precondition_action_leaks",
+        "max_unobservable_expectations",
+    ):
+        value = case.get(key)
+        if value is not None:
+            require(isinstance(value, int) and value >= 0, f"{case_id} {key} must be a non-negative integer")
+
+    for key in (
+        "min_business_goal_coverage_rate",
+        "min_high_risk_goal_path_coverage_rate",
+    ):
+        value = case.get(key)
+        if value is not None:
+            require(isinstance(value, (int, float)) and 0 <= value <= 1, f"{case_id} {key} must be between 0 and 1")
+
+
 def validate_artifact_suite(benchmark: dict) -> None:
     for artifact in benchmark.get("artifact_suite", []):
         artifact_id = artifact["id"]
@@ -164,6 +184,7 @@ def validate() -> None:
     )
 
     for case in benchmark.get("structure_quality_suite", []):
+        validate_structure_quality_config(case)
         input_json = resolve_case_path(case["input_json"], f"{case['id']}.input_json")
         require(input_json.exists(), f"missing structure input: {input_json}")
         case_tree = load_json(input_json)
