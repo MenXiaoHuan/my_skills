@@ -58,5 +58,44 @@
         }
       ]
     }
-  ]
+  ],
+  "_evaluation": {
+    "business_goals": [
+      {
+        "id": "G1",
+        "risk": "high",
+        "required_paths": [
+          "positive",
+          "critical_failure"
+        ]
+      },
+      {
+        "id": "G2",
+        "risk": "medium",
+        "required_paths": [
+          "positive"
+        ]
+      }
+    ],
+    "case_traceability": {
+      "[P0] 订单创建 - 相同 payload 的重复请求返回同一结果": {
+        "goals": [
+          "G1"
+        ],
+        "path": "positive"
+      },
+      "[P1] 订单创建 - 不同 payload 的重复请求返回冲突": {
+        "goals": [
+          "G1"
+        ],
+        "path": "critical_failure"
+      },
+      "[P1] 订单创建 - 过期幂等键允许重新创建订单": {
+        "goals": [
+          "G2"
+        ],
+        "path": "positive"
+      }
+    }
+  }
 }

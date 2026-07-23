@@ -76,5 +76,31 @@
         }
       ]
     }
-  ]
+  ],
+  "_evaluation": {
+    "business_goals": [
+      {
+        "id": "G1",
+        "risk": "high",
+        "required_paths": [
+          "positive",
+          "critical_failure"
+        ]
+      }
+    ],
+    "case_traceability": {
+      "[P0] 网络恢复 - 自动同步后购物车数据一致": {
+        "goals": [
+          "G1"
+        ],
+        "path": "positive"
+      },
+      "[P0] 离线加购 - 请求进入重试队列": {
+        "goals": [
+          "G1"
+        ],
+        "path": "critical_failure"
+      }
+    }
+  }
 }

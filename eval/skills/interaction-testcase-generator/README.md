@@ -36,5 +36,8 @@ case 文件命名统一使用 `case_001_descriptive_name.json` 格式，编号�
 - 当前 eval 是轻量本地校验，不再依赖 `.meta`、历史 results、runtime workspace 或 checked-in `.xmind` 二进制产物
 - 当前 eval 不再维护 trigger、comparative、multi-turn、dual-candidate runtime 或 stability suite；这些能力如需恢复，应另建 runtime eval
 - 结构质量指标用于约束一级组数量、禁用顶层组、`其他` 是否按预期出现
-- 质量检查脚本会校验弱断言、空预期、重复标题、平均步骤数等结构化指标
+- 质量检查脚本会校验弱断言、空预期、重复标题、平均步骤数、目标字段末尾中文句号、前置条件动作泄漏、不可观察预期和优先级分布
+- fixture 可使用顶层 `_evaluation.business_goals` 与 `_evaluation.case_traceability` 声明本地评测所需的业务目标、风险、必需路径和用例映射；`_evaluation` 不属于最终 case tree schema，也不进入用户交付物
+- 新 fixture 一旦声明业务目标，必须同步维护用例标题可追溯映射，并在 `baseline.json` 配置目标覆盖率和高风险路径覆盖率阈值
+- `case.preconditions`、`case.steps[].action`、`case.steps[].expected` 的结构质量基线应设置 `max_trailing_chinese_periods: 0`
 - coverage ledger 指标用于约束覆盖维度、模块预算和最终 case 数

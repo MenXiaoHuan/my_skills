@@ -26,6 +26,7 @@
       "requires_other_group": true,
       "max_weak_expectations": 0,
       "max_empty_expected": 0,
+      "max_trailing_chinese_periods": 0,
       "max_duplicate_titles": 0,
       "min_average_steps_per_case": 1.0
     },
@@ -41,8 +42,32 @@
       "requires_other_group": false,
       "max_weak_expectations": 0,
       "max_empty_expected": 0,
+      "max_trailing_chinese_periods": 0,
       "max_duplicate_titles": 0,
-      "min_average_steps_per_case": 1.0
+      "min_average_steps_per_case": 1.0,
+      "min_business_goal_coverage_rate": 1.0,
+      "min_high_risk_goal_path_coverage_rate": 1.0
+    },
+    {
+      "id": "structure_003",
+      "input_json": "cases/case_001_app_cart_offline.json",
+      "max_trailing_chinese_periods": 0,
+      "min_business_goal_coverage_rate": 1.0,
+      "min_high_risk_goal_path_coverage_rate": 1.0
+    },
+    {
+      "id": "structure_004",
+      "input_json": "cases/case_007_order_api_idempotency_draft.json",
+      "max_trailing_chinese_periods": 0,
+      "min_business_goal_coverage_rate": 1.0,
+      "min_high_risk_goal_path_coverage_rate": 1.0
+    },
+    {
+      "id": "structure_005",
+      "input_json": "cases/case_008_supplier_settlement_approval.json",
+      "max_trailing_chinese_periods": 0,
+      "min_business_goal_coverage_rate": 1.0,
+      "min_high_risk_goal_path_coverage_rate": 1.0
     }
   ],
   "coverage_ledger_suite": [
