@@ -40,6 +40,11 @@ def _sanitize_title(title):
         text = updated.strip()
 
 
+def _strip_trailing_chinese_periods(value):
+    text = str(value or "").strip()
+    return re.sub(r"。+$", "", text).rstrip()
+
+
 def _topic(parent, title, note=None, marker=None):
     topic = SubElement(parent, f"{{{NS_CONTENT}}}topic", {"id": _u()})
     SubElement(topic, f"{{{NS_CONTENT}}}title").text = _sanitize_title(title)
@@ -198,7 +203,7 @@ def _render_case(parent_topic, case):
     )
     case_attached = _attach_children(case_topic)
 
-    preconditions = (case.get("preconditions") or "").strip()
+    preconditions = _strip_trailing_chinese_periods(case.get("preconditions"))
     description = (case.get("description") or "").strip()
     if preconditions:
         preconditions_topic = _topic(case_attached, "前置条件")
@@ -218,8 +223,8 @@ def _render_case(parent_topic, case):
         return
 
     for index, step in enumerate(steps, start=1):
-        action = (step.get("action") or "").strip()
-        expected = (step.get("expected") or "").strip()
+        action = _strip_trailing_chinese_periods(step.get("action"))
+        expected = _strip_trailing_chinese_periods(step.get("expected"))
         step_title = f"步骤 {index}: {action}" if action else f"步骤 {index}"
         step_topic = _topic(steps_attached, step_title, note=step.get("note"))
         step_attached = _attach_children(step_topic)

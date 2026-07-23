@@ -220,6 +220,46 @@ class XMindBuildTests(unittest.TestCase):
         self.assertIn("用例说明", notes)
         self.assertIn("步骤说明", notes)
 
+    def test_strips_trailing_chinese_periods_only_from_case_execution_fields(self):
+        data = {
+            "root_title": "用例集",
+            "groups": [
+                {
+                    "title": "标点清理",
+                    "cases": [
+                        {
+                            "title": "标题保留。",
+                            "priority": "P1",
+                            "note": "备注保留。",
+                            "preconditions": "用户已登录。。 ",
+                            "steps": [
+                                {
+                                    "action": "打开订单。确认状态。。 ",
+                                    "expected": "展示订单。状态为待支付。",
+                                    "note": "步骤备注保留。",
+                                },
+                                {
+                                    "action": "调用 API v2.",
+                                    "expected": "返回 HTTP 200.",
+                                },
+                            ],
+                        }
+                    ],
+                }
+            ],
+        }
+
+        root = ET.fromstring(MODULE.build_content_xml(data))
+        titles = _all_titles(root)
+        self.assertIn("用户已登录", titles)
+        self.assertIn("步骤 1: 打开订单。确认状态", titles)
+        self.assertIn("预期 1: 展示订单。状态为待支付", titles)
+        self.assertIn("步骤 2: 调用 API v2.", titles)
+        self.assertIn("预期 2: 返回 HTTP 200.", titles)
+        self.assertIn("[P1] 标题保留。", titles)
+        self.assertIn("备注保留。", _all_notes(root))
+        self.assertIn("步骤备注保留。", _all_notes(root))
+
 
 if __name__ == "__main__":
     unittest.main()
