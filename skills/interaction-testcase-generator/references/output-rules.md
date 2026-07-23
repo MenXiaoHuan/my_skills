@@ -118,6 +118,13 @@ Structural completeness:
 - Every step must include an expected result that is specific and observable
 - Do not output cases that only contain steps without preconditions or expected results
 
+Field punctuation contract:
+- `case.preconditions`, `case.steps[].action`, and `case.steps[].expected` must not end with one or more Chinese full stops (`。`)
+- trim surrounding whitespace and remove only trailing Chinese full stops from those three fields
+- preserve Chinese full stops inside a field, English periods, and all other punctuation
+- do not apply this cleanup to root titles, group titles, case titles, descriptions, notes, or step notes
+- apply the same contract to normalized JSON text output and XMind output; the XMind builder provides a deterministic rendering fallback without changing the input object
+
 Backend/API linkage:
 - when source material includes backend technical documents or API specifications, link business actions with key API verification in the execution steps
 - include relevant request parameters, response fields, status codes or error codes, state transitions, and data side effects when they affect the case intent

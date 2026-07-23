@@ -6,10 +6,16 @@ Read this file when the hard part is case granularity, exception coverage, bound
 
 Always:
 
+- establish `business goal → core flow → failure risk → verification intent → observable assertion` before expanding detailed cases
+- map every core business goal to at least one case and every high-risk goal to both a positive case and a critical-failure case
 - keep one case focused on one verification intent
-- keep `前置条件` limited to setup, data state, role state, or environment state
+- keep `前置条件` limited to role, permission, data, state, and environment setup
+- make every case independently constructible; never depend on another case's execution result
 - put actions only in `步骤`
+- make key steps state the entry, operation target, necessary input, and trigger action
 - make expected results observable, concrete, and verifiable
+- make expected results identify the verification target and state or data change
+- make exception expectations verify error feedback, data invariance, and applicable compensation or recovery behavior
 - split cases when role, state, request contract, or expected outcome changes
 - cover single-variable behavior first, then add high-risk combinations or pairwise interactions
 - write a concise `note` for each case topic by default; use it for focus, risk, or business context, not a title repeat
@@ -25,6 +31,8 @@ Avoid:
 - merged mega-cases with unrelated assertions
 - vague expectations such as `展示正常` or `返回正确结果`
 - putting steps or expectations inside `前置条件`
+- preconditions containing actions such as click, input, select, submit, invoke, verify, or open
+- unobservable expectations such as `处理成功`, `操作成功`, or `符合预期` without a concrete verification target
 - repeating the full title verbatim inside `note`
 
 ## Exception And Boundary Coverage
@@ -65,3 +73,6 @@ Before delivering the final case set, quickly ask:
 - have empty-state, no-data, and inconsistent-data behaviors been considered when the feature shows lists, reports, cards, charts, or exports
 - have real business boundaries been checked for limits, timing windows, state transitions, duplicate operations, or concurrency
 - if no boundary case is output, is that because no meaningful edge exists rather than because the scan was skipped
+- does every core goal have a mapped case and every high-risk goal have positive plus critical-failure coverage
+- do priorities match goal risk, impact scope, and recoverability rather than general visibility
+- are `preconditions`, `action`, and `expected` free of trailing Chinese full stops while preserving internal and non-Chinese punctuation

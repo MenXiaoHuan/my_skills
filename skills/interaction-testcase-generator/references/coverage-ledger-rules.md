@@ -9,6 +9,7 @@ A coverage ledger stabilizes the final case tree before detailed cases are writt
 Use it to lock three things:
 
 - target top-level modules, workflows, entities, interfaces, or pages
+- business goals, risk levels, verification intents, and mapped cases
 - required coverage dimensions per target group
 - expected case budget per target group
 
@@ -19,10 +20,16 @@ The goal is stable, high-value coverage, not an exact global case count.
 Before expanding leaf cases, create an internal table with:
 
 - module, workflow, entity, interface, or page name
+- business goal id and concise goal statement
+- risk level and concrete failure consequence
+- required paths: at least one mapped case for every core goal; `positive` and `critical_failure` for every high-risk goal
+- mapped case titles or planned verification intents
 - required dimensions: `core`, `data_correctness`, `exception`, `empty_state`
 - conditional dimensions: `permission`, `export`, `state_transition`, `dependency_failure`, `boundary`, `multi_view`
 - planned case budget: `[min, max]`
 - notes for dimensions intentionally skipped
+
+If an exception, boundary, concurrency, or compatibility path is not applicable, record a source-backed skip reason instead of generating a thin case. A missing required high-risk path cannot be waived only to stay within budget.
 
 ## Budget Rules
 
@@ -95,6 +102,8 @@ Fill source-backed missing families before finalizing; do not deliver the first 
 Before writing `.xmind`, check:
 
 - every target module has a final case count within budget or a variance note
+- every core business goal maps to at least one final case
+- every high-risk goal has both positive and critical-failure coverage
 - every required dimension is covered or intentionally skipped with a reason
 - every case has `preconditions`, `steps`, and expected results; use `No special preconditions` when no setup is needed
 - `其他` contains only residual checks and does not hide major module behavior

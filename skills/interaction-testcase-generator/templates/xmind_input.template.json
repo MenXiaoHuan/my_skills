@@ -34,6 +34,7 @@
       "groups": []
     }
   ],
+  "_comment_punctuation": "preconditions、steps[].action、steps[].expected 末尾不使用中文句号。",
   "_comment_flat_group_auto_merge": "默认优先输出扁平 group 标题。若多个 group 共享同一业务前缀，如 `Creative Insights - Top10 Videos` 与 `Creative Insights - Content Execution Label`，构建器会在满足规则时自动归并出共同父节点。",
   "_comment_explicit_nested_groups": "只有当源材料本身已经明确存在业务层级，且这层级必须被保留时，再显式使用嵌套 groups。",
   "_comment_child_lineage": "若子页面、详情页、抽屉、弹窗或子流程只能从父模块进入，group 标题应保留父模块上下文，例如 `Top10 Videos - 视频详情`，不要单独写成顶层 `视频详情`。"

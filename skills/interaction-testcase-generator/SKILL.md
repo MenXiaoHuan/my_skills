@@ -24,17 +24,19 @@ Prefer one targeted read over bulk-loading the whole skill folder.
 
 1. Read the requirement, technical design, API, prototype, or change summary.
 2. Clarify scope, affected systems, roles, and release risk.
-3. Decide whether gaps require a follow-up question, an explicit assumption, or a `draft`.
-4. Build a compact module-first case tree, then backfill permissions, exceptions, data consistency, and boundary coverage into the owning module or `Miscellaneous`.
-5. Always use dual-candidate mode for detailed case generation. Use parallel subtask tools for 2 candidates when available; otherwise create 2 separate internal drafts serially:
+3. Extract and trace `business goal → core flow → failure risk → verification intent → observable assertion`.
+4. Decide whether gaps require a follow-up question, an explicit assumption, or a `draft`.
+5. Build a compact module-first case tree, then backfill permissions, exceptions, data consistency, and boundary coverage into the owning module or `Miscellaneous`.
+6. Always use dual-candidate mode for detailed case generation. Use parallel subtask tools for 2 candidates when available; otherwise create 2 separate internal drafts serially:
    - Candidate A: `coverage-first`
    - Candidate B: `quality-first`
-6. Require explicit Candidate A and Candidate B internal drafts, a target top-level module/workflow set, coverage ledger, per-module or per-workflow case budget, and an adjudication table before finalizing.
-7. Run exception and boundary scans, then expand only meaningful coverage into detailed QA cases with priorities.
-8. Run a second-pass coverage gap scan across scenario families before finalizing; do not deliver the first draft before the gap scan is complete.
-9. Self-check with `references/grouping-rules.md`, `references/quality-rules.md`, and `references/coverage-ledger-rules.md`.
-10. Keep each case title short, write concise `note`, include `preconditions`, structured `steps`, and expected results, build normalized JSON, and generate the final `.xmind` when file generation is available.
-11. In a final-answer-only or runtime evaluation environment, return exactly one fenced ```json block containing the final normalized case tree before any XMind/script fallback. Do not include prose before or after that JSON block.
+7. Require explicit Candidate A and Candidate B internal drafts, a target top-level module/workflow set, a goal-and-risk-aware coverage ledger, per-module or per-workflow case budget, and an adjudication table before finalizing.
+8. Map every core business goal to at least one case. Map every high-risk goal to at least one positive case and one critical-failure case.
+9. Run exception and boundary scans, then expand only meaningful coverage into detailed QA cases with priorities.
+10. Run a second-pass coverage gap scan across scenario families before finalizing; do not deliver the first draft before the gap scan is complete.
+11. Self-check with `references/grouping-rules.md`, `references/quality-rules.md`, and `references/coverage-ledger-rules.md`.
+12. Keep each case title short, write concise `note`, include `preconditions`, structured `steps`, and expected results, build normalized JSON, and generate the final `.xmind` when file generation is available.
+13. In a final-answer-only or runtime evaluation environment, return exactly one fenced ```json block containing the final normalized case tree before any XMind/script fallback. Do not include prose before or after that JSON block.
 
 ## Analysis Pattern
 
@@ -66,6 +68,11 @@ The adjudicator should keep shared high-value cases, candidate-only cases worth 
 - Each case title must include the owning module name or a concrete scenario noun; reject generic repeated titles such as basic module validation, data export validation, data correctness validation, empty-state validation, and module API error handling when they appear under multiple modules.
 - Each detailed case must include `preconditions`, `steps`, and expected results. If no setup is needed, set `preconditions` to `No special preconditions`.
 - Every step must include an expected result that states the observable outcome, data change, state change, permission result, or error handling result.
+- Preconditions must contain only role, permission, data, state, and environment setup, and must not depend on another case's execution result.
+- Each key step must identify the entry, operation target, necessary input, and trigger action. Each expected result must identify the verification target and observable state or data change.
+- Exception expectations must verify error feedback plus applicable data invariance, compensation, or recovery behavior.
+- Every core business goal must map to at least one case; every high-risk goal must map to both a positive path and a critical-failure path.
+- `case.preconditions`, `case.steps[].action`, and `case.steps[].expected` must not end with one or more Chinese full stops (`。`). Preserve internal Chinese full stops, English periods, and punctuation in titles, groups, descriptions, and notes.
 - When backend technical documents or API specifications are provided, link business actions with key API verification in the execution steps.
 - Before finalizing, run a coverage gap scan across scenario families and fill source-backed gaps; do not add thin cases solely to increase count.
 - The final output must be a single adjudicated result. Do not expose raw candidate drafts, A/B comparisons, or internal merge artifacts unless the user explicitly asks for debugging output.
