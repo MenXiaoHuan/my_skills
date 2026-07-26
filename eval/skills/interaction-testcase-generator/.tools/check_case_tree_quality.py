@@ -2,8 +2,19 @@
 import argparse
 import json
 import re
+import sys
 from collections import Counter
 from pathlib import Path
+
+REPO_ROOT = Path(__file__).resolve().parents[4]
+PRODUCTION_SCRIPTS = REPO_ROOT / "skills" / "interaction-testcase-generator" / "scripts"
+sys.path.insert(0, str(PRODUCTION_SCRIPTS))
+from quality_report import (
+    build_quality_report,
+    normalize_case_title,
+    verification_fingerprint,
+)
+from validate_case_tree import ValidationError, validate_case_tree
 
 
 WEAK_EXPECTATION_PATTERNS = [
@@ -190,6 +201,120 @@ def compute_metrics(case_tree: dict) -> dict:
     }
 
 
+_compute_legacy_metrics = compute_metrics
+
+
+def compute_metrics(
+    case_tree: dict,
+    ir: dict | None = None,
+    selected_case_ids: list[str] | None = None,
+) -> dict:
+    metrics = _compute_legacy_metrics(case_tree)
+    cases = list(iter_cases(case_tree.get("groups") or []))
+    allowed_priorities = {"P0", "P1", "P2", "P3"}
+    invalid_priority_count = 0
+    priority_prefix_mismatch_count = 0
+    schema_complete_count = 0
+    schema_errors = []
+
+    try:
+        validate_case_tree(case_tree)
+    except ValidationError as error:
+        schema_errors.append(str(error))
+
+    normalized_titles = []
+    for case in cases:
+        title = str(case.get("title") or "").strip()
+        priority = str(case.get("priority") or "").strip().upper()
+        if priority not in allowed_priorities:
+            invalid_priority_count += 1
+        prefix = re.match(r"^\[(P[0-9]+)\]\s+", title, re.IGNORECASE)
+        if prefix is None or prefix.group(1).upper() != priority:
+            priority_prefix_mismatch_count += 1
+
+        preconditions = case.get("preconditions")
+        steps = case.get("steps")
+        complete = (
+            bool(title)
+            and priority in allowed_priorities
+            and prefix is not None
+            and prefix.group(1).upper() == priority
+            and isinstance(preconditions, str)
+            and bool(preconditions.strip())
+            and isinstance(steps, list)
+            and bool(steps)
+            and all(
+                isinstance(step, dict)
+                and isinstance(step.get("action"), str)
+                and bool(step["action"].strip())
+                and isinstance(step.get("expected"), str)
+                and bool(step["expected"].strip())
+                for step in (steps or [])
+            )
+        )
+        schema_complete_count += int(complete)
+        normalized_titles.append(normalize_case_title(title))
+
+    normalized_duplicates = {
+        title
+        for title, count in Counter(normalized_titles).items()
+        if title and count > 1
+    }
+    metrics.update(
+        {
+            "schema_complete_count": schema_complete_count,
+            "schema_complete_rate": (
+                round(schema_complete_count / len(cases), 4) if cases else 0
+            ),
+            "schema_error_count": 0 if schema_complete_count == len(cases) and not schema_errors else max(1, len(cases) - schema_complete_count),
+            "schema_errors": schema_errors,
+            "invalid_priority_count": invalid_priority_count,
+            "priority_prefix_mismatch_count": priority_prefix_mismatch_count,
+            "normalized_duplicate_title_count": len(normalized_duplicates),
+            "normalized_duplicate_titles": sorted(normalized_duplicates),
+        }
+    )
+
+    if ir is not None:
+        report = build_quality_report(ir, selected_case_ids)
+        selected = [
+            case
+            for case in ir.get("candidate_cases", [])
+            if str(case.get("id")) in set(report["selected_case_ids"])
+        ]
+        fingerprint_counts = Counter(
+            verification_fingerprint(case) for case in selected
+        )
+        blocking = report["quality_gates"]["blocking"]
+        metrics.update(
+            {
+                "required_atom_coverage_rate": report["required_atom_coverage"]["rate"],
+                "api_coverage_rate": report["api_coverage"]["rate"],
+                "data_invariant_coverage_rate": report["data_invariant_coverage"]["rate"],
+                "high_risk_goal_path_coverage_rate": report["risk_coverage"]["high_risk_path_rate"],
+                "api_without_source_count": len(blocking["api_without_source"]),
+                "data_without_invariant_count": len(blocking["data_without_invariant"]),
+                "fingerprint_duplicate_cluster_count": sum(
+                    count > 1 for count in fingerprint_counts.values()
+                ),
+                "quality_gate_passed": report["quality_gates"]["passed"],
+            }
+        )
+    else:
+        metrics.update(
+            {
+                "required_atom_coverage_rate": None,
+                "api_coverage_rate": None,
+                "data_invariant_coverage_rate": None,
+                "api_without_source_count": 0,
+                "data_without_invariant_count": 0,
+                "fingerprint_duplicate_cluster_count": 0,
+                "quality_gate_passed": None,
+            }
+        )
+    return metrics
+
+
 def require(condition: bool, message: str) -> None:
     if not condition:
         raise SystemExit(message)
@@ -275,6 +400,9 @@ def validate_against_config(metrics: dict, config: dict, case_id: str) -> None:
     minimum_metrics = {
         "min_business_goal_coverage_rate": "business_goal_coverage_rate",
         "min_high_risk_goal_path_coverage_rate": "high_risk_goal_path_coverage_rate",
+        "min_required_atom_coverage_rate": "required_atom_coverage_rate",
+        "min_api_coverage_rate": "api_coverage_rate",
+        "min_data_invariant_coverage_rate": "data_invariant_coverage_rate",
     }
     for config_key, metric_key in minimum_metrics.items():
         minimum = config.get(config_key)
@@ -284,6 +412,23 @@ def validate_against_config(metrics: dict, config: dict, case_id: str) -> None:
             require(
                 actual >= minimum,
                 f"{case_id} {metric_key} too low: expected >= {minimum}, got {actual}",
+            )
+
+    regression_maximum_metrics = {
+        "max_schema_errors": "schema_error_count",
+        "max_invalid_priorities": "invalid_priority_count",
+        "max_priority_prefix_mismatches": "priority_prefix_mismatch_count",
+        "max_normalized_duplicate_titles": "normalized_duplicate_title_count",
+        "max_fingerprint_duplicate_clusters": "fingerprint_duplicate_cluster_count",
+        "max_api_without_source": "api_without_source_count",
+        "max_data_without_invariant": "data_without_invariant_count",
+    }
+    for config_key, metric_key in regression_maximum_metrics.items():
+        maximum = config.get(config_key)
+        if maximum is not None:
+            require(
+                metrics[metric_key] <= maximum,
+                f"{case_id} {metric_key} exceeded: expected <= {maximum}, got {metrics[metric_key]}",
             )
 
 

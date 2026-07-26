@@ -7,6 +7,7 @@
         {
           "title": "[P1] 全局筛选器 - 切换行业 - 刷新页面模块数据",
           "priority": "P1",
+          "preconditions": "页面已加载且当前行业存在可区分的数据",
           "note": "验证全局筛选上下文会驱动页面核心模块刷新。",
           "steps": [
             {
@@ -23,6 +24,7 @@
         {
           "title": "[P0] Market Landscape - 展示核心指标 - 与接口返回一致",
           "priority": "P0",
+          "preconditions": "Market Landscape 接口存在稳定测试数据",
           "note": "核心指标是页面判断市场表现的主要依据。",
           "steps": [
             {
@@ -39,6 +41,7 @@
         {
           "title": "[P1] Trend Analysis - 切换时间粒度 - 趋势图重新聚合",
           "priority": "P1",
+          "preconditions": "趋势数据覆盖多个自然周",
           "note": "验证趋势图按当前时间粒度重新计算。",
           "steps": [
             {
@@ -55,6 +58,7 @@
         {
           "title": "[P2] 全局参数 - 缺失必要筛选参数 - 页面安全兜底",
           "priority": "P2",
+          "preconditions": "可构造缺少必要筛选参数的页面请求",
           "note": "残余全局参数校验收口到其他，不单独创建异常顶层组。",
           "steps": [
             {

@@ -1,0 +1,35 @@
+{
+  "version": "1.0",
+  "sources": [{"id": "SRC-REQ", "type": "requirement"}, {"id": "SRC-TECH", "type": "technical_design"}],
+  "business_goals": [{"id": "G-APPROVAL", "risk": "high", "required_paths": ["positive", "critical_failure"]}],
+  "api_contracts": [],
+  "data_invariants": [],
+  "states": [{"id": "STATE-PENDING"}, {"id": "STATE-DRAFT"}],
+  "coverage_atoms": [
+    {"id": "A-SUBMIT", "kind": "state_transition", "target_ref": "STATE-PENDING", "required": true, "risk_weight": 5},
+    {"id": "A-REJECT", "kind": "state_transition", "target_ref": "STATE-DRAFT", "required": true, "risk_weight": 5},
+    {"id": "A-ERP", "kind": "exception_recovery", "target_ref": "G-APPROVAL", "required": true, "risk_weight": 5}
+  ],
+  "candidate_cases": [
+    {
+      "id": "C-SUBMIT",
+      "title": "提交进入审批",
+      "source_refs": ["SRC-REQ"],
+      "goal_refs": ["G-APPROVAL"],
+      "path_type": "positive",
+      "coverage_atoms": ["A-SUBMIT"],
+      "execution_cost": 1
+    },
+    {
+      "id": "C-REJECT",
+      "title": "驳回退回草稿",
+      "source_refs": ["SRC-REQ"],
+      "goal_refs": ["G-APPROVAL"],
+      "path_type": "critical_failure",
+      "coverage_atoms": ["A-REJECT", "A-ERP"],
+      "execution_cost": 2
+    }
+  ],
+  "assumptions": [],
+  "conflicts": []
+}

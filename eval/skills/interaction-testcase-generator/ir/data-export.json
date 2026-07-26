@@ -1,0 +1,35 @@
+{
+  "version": "1.0",
+  "sources": [{"id": "SRC-DATA", "type": "data_definition"}],
+  "business_goals": [{"id": "G-DATA", "risk": "high", "required_paths": ["positive", "critical_failure"]}],
+  "api_contracts": [],
+  "data_invariants": [{"id": "INV-EXPORT", "source_refs": ["SRC-DATA"]}],
+  "states": [],
+  "coverage_atoms": [
+    {"id": "A-EXPORT", "kind": "data_consistency", "target_ref": "INV-EXPORT", "required": true, "risk_weight": 5},
+    {"id": "A-PARTIAL", "kind": "exception_recovery", "target_ref": "G-DATA", "required": true, "risk_weight": 4}
+  ],
+  "candidate_cases": [
+    {
+      "id": "C-EXPORT",
+      "title": "导出与列表一致",
+      "source_refs": ["SRC-DATA"],
+      "invariant_refs": ["INV-EXPORT"],
+      "goal_refs": ["G-DATA"],
+      "path_type": "positive",
+      "coverage_atoms": ["A-EXPORT"],
+      "execution_cost": 1
+    },
+    {
+      "id": "C-PARTIAL",
+      "title": "部分成功统计一致",
+      "source_refs": ["SRC-DATA"],
+      "goal_refs": ["G-DATA"],
+      "path_type": "critical_failure",
+      "coverage_atoms": ["A-PARTIAL"],
+      "execution_cost": 1
+    }
+  ],
+  "assumptions": [],
+  "conflicts": []
+}

@@ -1,180 +1,69 @@
 {
-  "version": 3,
+  "version": 4,
   "skill_name": "interaction-testcase-generator",
-  "focus": [
-    "case_file_integrity",
-    "structure_quality",
-    "coverage_ledger",
-    "artifact_content"
-  ],
   "structure_quality_suite": [
     {
-      "id": "structure_001",
-      "input_json": "cases/case_006_module_tree_with_other.json",
-      "max_top_level_groups": 8,
-      "required_top_level_groups": [
-        "全局筛选器",
-        "Market Landscape",
-        "Trend Analysis",
-        "其他"
-      ],
-      "forbidden_top_level_groups": [
-        "页面交互与导航",
-        "数据正确性",
-        "异常与兜底"
-      ],
-      "requires_other_group": true,
-      "max_weak_expectations": 0,
-      "max_empty_expected": 0,
-      "max_trailing_chinese_periods": 0,
-      "max_duplicate_titles": 0,
-      "min_average_steps_per_case": 1.0
-    },
-    {
-      "id": "structure_002",
-      "input_json": "cases/case_005_crm_import_review_center.json",
-      "max_top_level_groups": 4,
-      "forbidden_top_level_groups": [
-        "页面交互与导航",
-        "数据正确性",
-        "异常与兜底"
-      ],
-      "requires_other_group": false,
-      "max_weak_expectations": 0,
-      "max_empty_expected": 0,
-      "max_trailing_chinese_periods": 0,
-      "max_duplicate_titles": 0,
-      "min_average_steps_per_case": 1.0,
-      "min_business_goal_coverage_rate": 1.0,
-      "min_high_risk_goal_path_coverage_rate": 1.0
-    },
-    {
-      "id": "structure_003",
+      "id": "structure_cart",
       "input_json": "cases/case_001_app_cart_offline.json",
-      "max_trailing_chinese_periods": 0,
-      "min_business_goal_coverage_rate": 1.0,
-      "min_high_risk_goal_path_coverage_rate": 1.0
+      "ir_json": "ir/interaction-cart.json",
+      "selected_case_ids": ["C-CART-SYNC", "C-CART-OFFLINE"],
+      "min_schema_complete_rate": 1.0,
+      "max_schema_errors": 0,
+      "max_invalid_priorities": 0,
+      "max_priority_prefix_mismatches": 0,
+      "max_normalized_duplicate_titles": 0,
+      "min_required_atom_coverage_rate": 1.0
     },
     {
-      "id": "structure_004",
+      "id": "structure_crm",
+      "input_json": "cases/case_005_crm_import_review_center.json",
+      "ir_json": "ir/data-export.json",
+      "selected_case_ids": ["C-EXPORT", "C-PARTIAL"],
+      "min_schema_complete_rate": 1.0,
+      "max_schema_errors": 0,
+      "max_api_without_source": 0,
+      "max_data_without_invariant": 0,
+      "min_required_atom_coverage_rate": 1.0
+    },
+    {
+      "id": "structure_modules",
+      "input_json": "cases/case_006_module_tree_with_other.json",
+      "ir_json": "ir/data-export.json",
+      "selected_case_ids": ["C-EXPORT", "C-PARTIAL"],
+      "min_schema_complete_rate": 1.0,
+      "max_schema_errors": 0,
+      "max_top_level_groups": 8,
+      "required_top_level_groups": ["全局筛选器", "Market Landscape", "Trend Analysis", "其他"],
+      "forbidden_top_level_groups": ["页面交互与导航", "数据正确性", "异常与兜底"],
+      "requires_other_group": true,
+      "max_normalized_duplicate_titles": 0,
+      "min_required_atom_coverage_rate": 1.0
+    },
+    {
+      "id": "structure_api",
       "input_json": "cases/case_007_order_api_idempotency_draft.json",
-      "max_trailing_chinese_periods": 0,
-      "min_business_goal_coverage_rate": 1.0,
-      "min_high_risk_goal_path_coverage_rate": 1.0
+      "ir_json": "ir/api-idempotency.json",
+      "selected_case_ids": ["C-REPLAY", "C-CONFLICT"],
+      "min_schema_complete_rate": 1.0,
+      "max_schema_errors": 0,
+      "max_api_without_source": 0,
+      "min_api_coverage_rate": 1.0,
+      "min_required_atom_coverage_rate": 1.0
     },
     {
-      "id": "structure_005",
+      "id": "structure_approval",
       "input_json": "cases/case_008_supplier_settlement_approval.json",
-      "max_trailing_chinese_periods": 0,
-      "min_business_goal_coverage_rate": 1.0,
-      "min_high_risk_goal_path_coverage_rate": 1.0
-    }
-  ],
-  "coverage_ledger_suite": [
-    {
-      "id": "coverage_ledger_001",
-      "artifact_json": "cases/case_002_coverage_ledger_bp_competitive.json",
-      "target_modules": [
-        "全局筛选器",
-        "Market Landscape",
-        "Trend Analysis",
-        "Audience Persona",
-        "Competitive Landscape",
-        "Creative Insights",
-        "Creators Insights",
-        "其他"
-      ],
-      "required_dimensions": [
-        "core",
-        "data_correctness",
-        "exception",
-        "empty_state"
-      ]
-    },
-    {
-      "id": "coverage_ledger_002",
-      "artifact_json": "cases/case_004_coverage_ledger_supplier_approval.json",
-      "target_modules": [
-        "结算单创建",
-        "审批流转",
-        "ERP同步",
-        "列表筛选与导出"
-      ],
-      "required_dimensions": [
-        "core",
-        "permission",
-        "state_transition",
-        "exception"
-      ]
-    },
-    {
-      "id": "coverage_ledger_003",
-      "artifact_json": "cases/case_003_coverage_ledger_crm_import.json",
-      "target_modules": [
-        "导入与校验",
-        "审核与权限",
-        "客户池同步",
-        "结果导出"
-      ],
-      "required_dimensions": [
-        "core",
-        "permission",
-        "exception",
-        "data_correctness"
-      ]
+      "ir_json": "ir/approval-settlement.json",
+      "selected_case_ids": ["C-SUBMIT", "C-REJECT"],
+      "min_schema_complete_rate": 1.0,
+      "max_schema_errors": 0,
+      "min_required_atom_coverage_rate": 1.0
     }
   ],
   "artifact_suite": [
-    {
-      "id": "artifact_001",
-      "label": "final",
-      "input_json": "cases/case_008_supplier_settlement_approval.json",
-      "required_strings": [
-        "用例集",
-        "审批",
-        "驳回",
-        "ERP",
-        "通知",
-        "导出"
-      ]
-    },
-    {
-      "id": "artifact_002",
-      "label": "final",
-      "input_json": "cases/case_001_app_cart_offline.json",
-      "required_strings": [
-        "用例集",
-        "重复加入",
-        "库存不足",
-        "离线",
-        "网络恢复",
-        "同步"
-      ]
-    },
-    {
-      "id": "artifact_003",
-      "label": "draft",
-      "input_json": "cases/case_007_order_api_idempotency_draft.json",
-      "required_strings": [
-        "draft",
-        "幂等键",
-        "冲突",
-        "过期",
-        "假设"
-      ]
-    },
-    {
-      "id": "artifact_004",
-      "label": "final",
-      "input_json": "cases/case_005_crm_import_review_center.json",
-      "required_strings": [
-        "用例集",
-        "导入",
-        "部分成功",
-        "权限",
-        "客户池",
-        "导出"
-      ]
-    }
+    {"id": "artifact_cart", "input_json": "cases/case_001_app_cart_offline.json"},
+    {"id": "artifact_crm", "input_json": "cases/case_005_crm_import_review_center.json"},
+    {"id": "artifact_api", "input_json": "cases/case_007_order_api_idempotency_draft.json"},
+    {"id": "artifact_approval", "input_json": "cases/case_008_supplier_settlement_approval.json"}
   ]
 }

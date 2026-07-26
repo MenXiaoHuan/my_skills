@@ -9,139 +9,150 @@ MODULE = importlib.util.module_from_spec(SPEC)
 assert SPEC.loader is not None
 SPEC.loader.exec_module(MODULE)
 
-VALIDATOR_PATH = Path(__file__).resolve().parent / "validate_benchmark.py"
-VALIDATOR_SPEC = importlib.util.spec_from_file_location("validate_benchmark", VALIDATOR_PATH)
-VALIDATOR_MODULE = importlib.util.module_from_spec(VALIDATOR_SPEC)
-assert VALIDATOR_SPEC.loader is not None
-VALIDATOR_SPEC.loader.exec_module(VALIDATOR_MODULE)
-
-
-def _case_tree():
+def case_tree():
     return {
+        "root_title": "用例集",
         "groups": [
             {
-                "title": "支付",
+                "title": "订单",
                 "cases": [
                     {
-                        "title": "支付成功",
+                        "title": "[P1] 创建订单",
                         "priority": "P1",
-                        "preconditions": "点击进入支付页。",
+                        "preconditions": "用户已登录",
                         "steps": [
                             {
-                                "action": "提交支付。",
-                                "expected": "订单状态变为已支付。",
+                                "action": "提交订单",
+                                "expected": "订单状态为已创建",
                             }
                         ],
-                    },
-                    {
-                        "title": "重复支付",
-                        "priority": "P2",
-                        "preconditions": "订单已支付",
-                        "steps": [
-                            {
-                                "action": "再次提交支付",
-                                "expected": "处理成功",
-                            }
-                        ],
-                    },
+                    }
                 ],
             }
+        ]
+    }
+
+
+def ir():
+    return {
+        "version": "1.0",
+        "sources": [{"id": "SRC-API", "type": "api"}],
+        "business_goals": [
+            {"id": "G-1", "risk": "high", "required_paths": ["positive"]}
         ],
-        "_evaluation": {
-            "business_goals": [
-                {
-                    "id": "G1",
-                    "risk": "high",
-                    "required_paths": ["positive", "critical_failure"],
-                },
-                {
-                    "id": "G2",
-                    "risk": "medium",
-                    "required_paths": ["positive"],
-                },
-            ],
-            "case_traceability": {
-                "支付成功": {"goals": ["G1"], "path": "positive"},
-                "重复支付": {"goals": ["G1"], "path": "critical_failure"},
-                "不存在的用例": {"goals": ["G2"], "path": "positive"},
+        "api_contracts": [{"id": "API-1", "source_refs": ["SRC-API"]}],
+        "data_invariants": [{"id": "INV-1", "source_refs": ["SRC-API"]}],
+        "states": [],
+        "coverage_atoms": [
+            {
+                "id": "A-API",
+                "kind": "api_contract",
+                "target_ref": "API-1",
+                "required": True,
+                "risk_weight": 5,
             },
-        },
+            {
+                "id": "A-DATA",
+                "kind": "data_consistency",
+                "target_ref": "INV-1",
+                "required": True,
+                "risk_weight": 4,
+            },
+        ],
+        "candidate_cases": [
+            {
+                "id": "C-1",
+                "title": "创建订单",
+                "source_refs": ["SRC-API"],
+                "goal_refs": ["G-1"],
+                "path_type": "positive",
+                "coverage_atoms": ["A-API"],
+                "module_ref": "M-ORDER",
+                "business_object": "订单",
+                "pre_state": "草稿",
+                "trigger": "提交",
+                "condition": "有效请求",
+                "assertion_target": "订单状态",
+                "post_state": "已创建",
+            },
+            {
+                "id": "C-2",
+                "title": "订单数据一致",
+                "invariant_refs": ["INV-1"],
+                "goal_refs": ["G-1"],
+                "path_type": "positive",
+                "coverage_atoms": ["A-DATA"],
+            },
+        ],
+        "assumptions": [],
+        "conflicts": [],
     }
 
 
 class CaseTreeQualityTests(unittest.TestCase):
-    def test_compute_metrics_includes_format_business_and_priority_metrics(self):
-        metrics = MODULE.compute_metrics(_case_tree())
+    def test_empty_action_is_not_schema_complete(self):
+        tree = case_tree()
+        tree["groups"][0]["cases"][0]["steps"][0]["action"] = ""
+        metrics = MODULE.compute_metrics(tree)
+        self.assertEqual(metrics["schema_complete_rate"], 0)
+        self.assertEqual(metrics["schema_error_count"], 1)
 
-        self.assertEqual(metrics["trailing_chinese_period_count"], 3)
-        self.assertEqual(metrics["business_goal_coverage_rate"], 0.5)
-        self.assertEqual(metrics["high_risk_goal_path_coverage_rate"], 1.0)
-        self.assertEqual(metrics["precondition_action_leak_count"], 1)
-        self.assertEqual(metrics["unobservable_expectation_count"], 1)
-        self.assertEqual(
-            metrics["priority_distribution"],
-            {"P0": 0, "P1": 1, "P2": 1, "P3": 0},
-        )
+    def test_invalid_priority_and_mismatched_prefix_are_reported(self):
+        tree = case_tree()
+        tree["groups"][0]["cases"][0]["priority"] = "P4"
+        metrics = MODULE.compute_metrics(tree)
+        self.assertEqual(metrics["invalid_priority_count"], 1)
+        tree["groups"][0]["cases"][0]["priority"] = "P2"
+        metrics = MODULE.compute_metrics(tree)
+        self.assertEqual(metrics["priority_prefix_mismatch_count"], 1)
 
-    def test_goal_coverage_metrics_are_none_without_evaluation_metadata(self):
-        case_tree = _case_tree()
-        case_tree.pop("_evaluation")
-
-        metrics = MODULE.compute_metrics(case_tree)
-
-        self.assertIsNone(metrics["business_goal_coverage_rate"])
-        self.assertIsNone(metrics["high_risk_goal_path_coverage_rate"])
-
-    def test_validate_against_config_rejects_new_metric_threshold_violations(self):
-        metrics = MODULE.compute_metrics(_case_tree())
-        invalid_configs = [
-            {"max_trailing_chinese_periods": 2},
-            {"max_precondition_action_leaks": 0},
-            {"max_unobservable_expectations": 0},
-            {"min_business_goal_coverage_rate": 0.6},
-            {"min_high_risk_goal_path_coverage_rate": 1.1},
-        ]
-
-        for config in invalid_configs:
-            with self.subTest(config=config):
-                with self.assertRaises(SystemExit):
-                    MODULE.validate_against_config(metrics, config, "case")
-
-    def test_validate_against_config_requires_metadata_for_coverage_thresholds(self):
-        case_tree = _case_tree()
-        case_tree.pop("_evaluation")
-        metrics = MODULE.compute_metrics(case_tree)
-
-        for key in (
-            "min_business_goal_coverage_rate",
-            "min_high_risk_goal_path_coverage_rate",
-        ):
-            with self.subTest(key=key):
-                with self.assertRaises(SystemExit):
-                    MODULE.validate_against_config(metrics, {key: 1.0}, "case")
-
-    def test_validate_benchmark_checks_new_quality_config_ranges(self):
-        valid_config = {
-            "id": "case",
-            "max_trailing_chinese_periods": 0,
-            "max_precondition_action_leaks": 1,
-            "max_unobservable_expectations": 2,
-            "min_business_goal_coverage_rate": 1.0,
-            "min_high_risk_goal_path_coverage_rate": 0.5,
+    def test_normalized_title_and_fingerprint_duplicates_are_reported(self):
+        tree = case_tree()
+        duplicate = {
+            **tree["groups"][0]["cases"][0],
+            "title": "[P1] 创建 订单。",
         }
-        VALIDATOR_MODULE.validate_structure_quality_config(valid_config)
+        tree["groups"][0]["cases"].append(duplicate)
+        metrics = MODULE.compute_metrics(tree)
+        self.assertEqual(metrics["normalized_duplicate_title_count"], 1)
 
-        invalid_configs = [
-            {"id": "case", "max_trailing_chinese_periods": -1},
-            {"id": "case", "max_precondition_action_leaks": -1},
-            {"id": "case", "max_unobservable_expectations": -1},
-            {"id": "case", "min_business_goal_coverage_rate": 1.1},
-            {"id": "case", "min_high_risk_goal_path_coverage_rate": -0.1},
-        ]
-        for config in invalid_configs:
-            with self.subTest(config=config):
-                with self.assertRaises(SystemExit):
-                    VALIDATOR_MODULE.validate_structure_quality_config(config)
+        report_ir = ir()
+        report_ir["candidate_cases"].append(
+            {**report_ir["candidate_cases"][0], "id": "C-3", "title": "其他标题"}
+        )
+        metrics = MODULE.compute_metrics(tree, report_ir, ["C-1", "C-2", "C-3"])
+        self.assertEqual(metrics["fingerprint_duplicate_cluster_count"], 1)
+
+    def test_api_and_data_traceability_failures_are_reported(self):
+        report_ir = ir()
+        report_ir["candidate_cases"][0]["source_refs"] = []
+        report_ir["candidate_cases"][1]["invariant_refs"] = []
+        metrics = MODULE.compute_metrics(case_tree(), report_ir, ["C-1", "C-2"])
+        self.assertEqual(metrics["api_without_source_count"], 1)
+        self.assertEqual(metrics["data_without_invariant_count"], 1)
+
+    def test_coverage_is_computed_from_ir_and_selected_cases(self):
+        metrics = MODULE.compute_metrics(case_tree(), ir(), ["C-1"])
+        self.assertEqual(metrics["required_atom_coverage_rate"], 0.5)
+        self.assertEqual(metrics["api_coverage_rate"], 1.0)
+        self.assertEqual(metrics["data_invariant_coverage_rate"], 0.0)
+
+    def test_threshold_validation_uses_computed_metrics(self):
+        metrics = MODULE.compute_metrics(case_tree(), ir(), ["C-1", "C-2"])
+        valid = {
+            "min_schema_complete_rate": 1.0,
+            "max_schema_errors": 0,
+            "min_required_atom_coverage_rate": 1.0,
+            "max_api_without_source": 0,
+            "max_data_without_invariant": 0,
+        }
+        MODULE.validate_against_config(metrics, valid, "case")
+        with self.assertRaises(SystemExit):
+            MODULE.validate_against_config(
+                metrics,
+                {"min_required_atom_coverage_rate": 1.1},
+                "case",
+            )
 
 
 if __name__ == "__main__":

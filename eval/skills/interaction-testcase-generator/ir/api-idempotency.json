@@ -1,0 +1,34 @@
+{
+  "version": "1.0",
+  "sources": [{"id": "SRC-API", "type": "api"}],
+  "business_goals": [{"id": "G-API", "risk": "high", "required_paths": ["positive", "critical_failure"]}],
+  "api_contracts": [{"id": "API-ORDER", "source_refs": ["SRC-API"]}],
+  "data_invariants": [],
+  "states": [],
+  "coverage_atoms": [
+    {"id": "A-REPLAY", "kind": "api_contract", "target_ref": "API-ORDER", "required": true, "risk_weight": 5},
+    {"id": "A-CONFLICT", "kind": "api_contract", "target_ref": "API-ORDER", "required": true, "risk_weight": 5}
+  ],
+  "candidate_cases": [
+    {
+      "id": "C-REPLAY",
+      "title": "相同请求返回原订单",
+      "source_refs": ["SRC-API"],
+      "goal_refs": ["G-API"],
+      "path_type": "positive",
+      "coverage_atoms": ["A-REPLAY"],
+      "execution_cost": 1
+    },
+    {
+      "id": "C-CONFLICT",
+      "title": "不同请求返回冲突",
+      "source_refs": ["SRC-API"],
+      "goal_refs": ["G-API"],
+      "path_type": "critical_failure",
+      "coverage_atoms": ["A-CONFLICT"],
+      "execution_cost": 1
+    }
+  ],
+  "assumptions": ["成功状态码需由正式接口文档确认"],
+  "conflicts": []
+}

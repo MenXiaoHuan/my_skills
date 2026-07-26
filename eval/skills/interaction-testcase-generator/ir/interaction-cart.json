@@ -1,0 +1,34 @@
+{
+  "version": "1.0",
+  "sources": [{"id": "SRC-REQ", "type": "requirement"}],
+  "business_goals": [{"id": "G-1", "risk": "high", "required_paths": ["positive", "critical_failure"]}],
+  "api_contracts": [],
+  "data_invariants": [],
+  "states": [{"id": "STATE-SYNCED"}],
+  "coverage_atoms": [
+    {"id": "A-1", "kind": "interaction_flow", "target_ref": "G-1", "required": true, "risk_weight": 5},
+    {"id": "A-2", "kind": "exception_recovery", "target_ref": "G-1", "required": true, "risk_weight": 5}
+  ],
+  "candidate_cases": [
+    {
+      "id": "C-CART-SYNC",
+      "title": "网络恢复后同步",
+      "source_refs": ["SRC-REQ"],
+      "goal_refs": ["G-1"],
+      "path_type": "positive",
+      "coverage_atoms": ["A-1"],
+      "execution_cost": 1
+    },
+    {
+      "id": "C-CART-OFFLINE",
+      "title": "离线请求入队",
+      "source_refs": ["SRC-REQ"],
+      "goal_refs": ["G-1"],
+      "path_type": "critical_failure",
+      "coverage_atoms": ["A-2"],
+      "execution_cost": 1
+    }
+  ],
+  "assumptions": [],
+  "conflicts": []
+}

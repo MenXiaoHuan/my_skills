@@ -63,44 +63,5 @@
         }
       ]
     }
-  ],
-  "_evaluation": {
-    "business_goals": [
-      {
-        "id": "G1",
-        "risk": "high",
-        "required_paths": [
-          "positive",
-          "critical_failure"
-        ]
-      },
-      {
-        "id": "G2",
-        "risk": "medium",
-        "required_paths": [
-          "critical_failure"
-        ]
-      }
-    ],
-    "case_traceability": {
-      "[P0] 结算单提交 - 资料齐全后进入一级审批": {
-        "goals": [
-          "G1"
-        ],
-        "path": "positive"
-      },
-      "[P1] 结算单审批 - 二级驳回后退回草稿并保留驳回原因": {
-        "goals": [
-          "G1"
-        ],
-        "path": "critical_failure"
-      },
-      "[P0] 结算单审批 - ERP 落账失败时状态可追踪并通知财务": {
-        "goals": [
-          "G2"
-        ],
-        "path": "critical_failure"
-      }
-    }
-  }
+  ]
 }
