@@ -71,41 +71,7 @@ def text_values(value):
 
 
 def compute_goal_coverage(case_tree: dict, case_titles: set[str]) -> tuple[float | None, float | None]:
-    evaluation = case_tree.get("_evaluation")
-    if not isinstance(evaluation, dict):
-        return None, None
-
-    goals = evaluation.get("business_goals") or []
-    traceability = evaluation.get("case_traceability") or {}
-    goal_ids = {str(goal.get("id") or "") for goal in goals if goal.get("id")}
-    covered_goals = set()
-    covered_paths = set()
-
-    for case_title, trace in traceability.items():
-        if case_title not in case_titles or not isinstance(trace, dict):
-            continue
-        path = str(trace.get("path") or "")
-        for goal_id in trace.get("goals") or []:
-            goal_id = str(goal_id)
-            if goal_id not in goal_ids:
-                continue
-            covered_goals.add(goal_id)
-            if path:
-                covered_paths.add((goal_id, path))
-
-    business_goal_coverage_rate = round(len(covered_goals) / len(goal_ids), 4) if goal_ids else 1.0
-    required_high_risk_paths = {
-        (str(goal.get("id")), str(path))
-        for goal in goals
-        if str(goal.get("risk") or "").lower() == "high"
-        for path in goal.get("required_paths") or []
-    }
-    high_risk_goal_path_coverage_rate = (
-        round(len(required_high_risk_paths & covered_paths) / len(required_high_risk_paths), 4)
-        if required_high_risk_paths
-        else 1.0
-    )
-    return business_goal_coverage_rate, high_risk_goal_path_coverage_rate
+    return None, None
 
 
 def compute_metrics(case_tree: dict) -> dict:
@@ -289,6 +255,7 @@ def compute_metrics(
         metrics.update(
             {
                 "required_atom_coverage_rate": report["required_atom_coverage"]["rate"],
+                "business_goal_coverage_rate": report["goal_coverage"]["rate"],
                 "api_coverage_rate": report["api_coverage"]["rate"],
                 "data_invariant_coverage_rate": report["data_invariant_coverage"]["rate"],
                 "high_risk_goal_path_coverage_rate": report["risk_coverage"]["high_risk_path_rate"],
@@ -408,7 +375,7 @@ def validate_against_config(metrics: dict, config: dict, case_id: str) -> None:
         minimum = config.get(config_key)
         if minimum is not None:
             actual = metrics[metric_key]
-            require(actual is not None, f"{case_id} {metric_key} requires _evaluation metadata")
+            require(actual is not None, f"{case_id} {metric_key} requires an IR fixture")
             require(
                 actual >= minimum,
                 f"{case_id} {metric_key} too low: expected >= {minimum}, got {actual}",
