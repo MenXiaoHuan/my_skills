@@ -1,43 +1,30 @@
 # interaction-testcase-generator eval
 
-当前评测对象是 `skills/interaction-testcase-generator/`，eval 入口目录同步命名为 `eval/skills/interaction-testcase-generator/`。
+评测覆盖 strict schema、IR 驱动质量指标和真实 XMind artifact。
 
-外层目录只保留三个入口：
+## 目录
 
-- `cases/`：平铺 JSON case 样例
-- `baseline.json`：轻量基线，只保留 structure-quality / coverage-ledger / artifact-content 数据
-- `README.md`：维护说明
+- `cases/`：通过生产 strict validator 的标准 case tree
+- `ir/`：交互、API、审批和数据一致性代表性 IR
+- `baseline.json`：fixture 引用、selected case IDs 与阈值
+- `.tools/check_case_tree_quality.py`：复用生产 validator 和质量报告的指标适配器
+- `.tools/test_check_case_tree_quality.py`：schema 与 quality regression
+- `.tools/test_xmind_artifact_e2e.py`：真实构建、ZIP 与 XML 层级检查
+- `.tools/validate_benchmark.py`：运行全部 baseline 与 artifact suite
 
-隐藏目录说明：
+不提交 `expected.xmind`。artifact 测试在系统临时目录构建，测试结束后自动清理。
 
-- `.tools/`：轻量校验脚本
+## 验证命令
 
-## Cases
-
-每个 case 是一个平铺 JSON 文件，不再按 case 分目录：
-
-- `case_001_descriptive_name.json`：标准化 case tree 输入
-
-case 文件命名统一使用 `case_001_descriptive_name.json` 格式，编号递增，描述部分使用小写下划线。不提交 `expected.xmind` 二进制产物；需要验证 XMind 生成时由脚本临时生成。
-
-## 常用命令
-
-- 校验基线一致性：
-  `python3 eval/skills/interaction-testcase-generator/.tools/validate_benchmark.py`
-- 查看当前 case 文件：
-  `python3 eval/skills/interaction-testcase-generator/.tools/validate_benchmark.py --list-cases`
-- 查看单个 case tree 指标：
-  `python3 eval/skills/interaction-testcase-generator/.tools/check_case_tree_quality.py eval/skills/interaction-testcase-generator/cases/case_001_app_cart_offline.json --print-metrics`
+```bash
+PYTHONDONTWRITEBYTECODE=1 python3 eval/skills/interaction-testcase-generator/.tools/test_check_case_tree_quality.py
+PYTHONDONTWRITEBYTECODE=1 python3 eval/skills/interaction-testcase-generator/.tools/test_xmind_artifact_e2e.py
+PYTHONDONTWRITEBYTECODE=1 python3 eval/skills/interaction-testcase-generator/.tools/validate_benchmark.py
+```
 
 ## 维护规则
 
-- 新 case 先补到 `cases/`，再更新 `baseline.json`
-- 提交前至少跑一次 `validate_benchmark.py`
-- 当前 eval 是轻量本地校验，不再依赖 `.meta`、历史 results、runtime workspace 或 checked-in `.xmind` 二进制产物
-- 当前 eval 不再维护 trigger、comparative、multi-turn、dual-candidate runtime 或 stability suite；这些能力如需恢复，应另建 runtime eval
-- 结构质量指标用于约束一级组数量、禁用顶层组、`其他` 是否按预期出现
-- 质量检查脚本会校验弱断言、空预期、重复标题、平均步骤数、目标字段末尾中文句号、前置条件动作泄漏、不可观察预期和优先级分布
-- fixture 可使用顶层 `_evaluation.business_goals` 与 `_evaluation.case_traceability` 声明本地评测所需的业务目标、风险、必需路径和用例映射；`_evaluation` 不属于最终 case tree schema，也不进入用户交付物
-- 新 fixture 一旦声明业务目标，必须同步维护用例标题可追溯映射，并在 `baseline.json` 配置目标覆盖率和高风险路径覆盖率阈值
-- `case.preconditions`、`case.steps[].action`、`case.steps[].expected` 的结构质量基线应设置 `max_trailing_chinese_periods: 0`
-- coverage ledger 指标用于约束覆盖维度、模块预算和最终 case 数
+- case fixture 与 IR fixture 必须在 `baseline.json` 被引用。
+- 覆盖率由 IR 的 coverage atoms 和 `selected_case_ids` 计算，不使用 `_evaluation` 或自报 coverage ledger。
+- schema、枚举或质量算法变化时同步修改生产工具、单元测试、fixture 和阈值。
+- benchmark 的 artifact suite 必须执行真实 XMind 构建并解析 `content.xml`，不得退化为搜索输入 JSON 字符串。

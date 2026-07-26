@@ -2,7 +2,12 @@
 import argparse
 import importlib.util
 import json
+import subprocess
+import sys
+import tempfile
+import zipfile
 from pathlib import Path
+from xml.etree import ElementTree as ET
 
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -10,6 +15,21 @@ BASELINE_PATH = ROOT / "baseline.json"
 CASES_DIR = ROOT / "cases"
 IR_DIR = ROOT / "ir"
 QUALITY_CHECKER_PATH = Path(__file__).resolve().parent / "check_case_tree_quality.py"
+REPO_ROOT = Path(__file__).resolve().parents[4]
+XMIND_BUILD_PATH = (
+    REPO_ROOT
+    / "skills"
+    / "interaction-testcase-generator"
+    / "scripts"
+    / "xmind_build.py"
+)
+XMIND_MEMBERS = {
+    "content.xml",
+    "meta.xml",
+    "styles.xml",
+    "META-INF/manifest.xml",
+}
+XMIND_NS = {"x": "urn:xmind:xmap:xmlns:content:2.0"}
 
 QUALITY_SPEC = importlib.util.spec_from_file_location(
     "check_case_tree_quality",
@@ -149,18 +169,97 @@ def validate_structure_suite(benchmark: dict) -> None:
         QUALITY_MODULE.validate_against_config(metrics, case, case["id"])
 
 
+def _topic_title(topic) -> str:
+    title = topic.find("x:title", XMIND_NS)
+    return title.text or "" if title is not None else ""
+
+
+def _child_topics(topic):
+    return topic.findall("./x:children/x:topics/x:topic", XMIND_NS)
+
+
+def _validate_case_topic(topic) -> None:
+    title = _topic_title(topic)
+    require(
+        title.startswith(("[P0] ", "[P1] ", "[P2] ", "[P3] ")),
+        f"case topic has invalid priority prefix: {title}",
+    )
+    require(
+        topic.find("./x:markers/x:marker-ref", XMIND_NS) is not None,
+        f"case topic has no priority marker: {title}",
+    )
+    children = {_topic_title(child): child for child in _child_topics(topic)}
+    require("前置条件" in children, f"case has no preconditions branch: {title}")
+    require("步骤" in children, f"case has no steps branch: {title}")
+    require(
+        _child_topics(children["前置条件"]),
+        f"case has empty preconditions branch: {title}",
+    )
+    steps = _child_topics(children["步骤"])
+    require(steps, f"case has empty steps branch: {title}")
+    for step in steps:
+        step_title = _topic_title(step)
+        require(
+            step_title.startswith("步骤 ") and not step_title.endswith("。"),
+            f"invalid step topic: {step_title}",
+        )
+        expected = _child_topics(step)
+        require(expected, f"step has no expected result: {step_title}")
+        expected_title = _topic_title(expected[0])
+        require(
+            expected_title.startswith("预期 ") and not expected_title.endswith("。"),
+            f"invalid expected topic: {expected_title}",
+        )
+
+
+def _validate_group_or_case(topic) -> int:
+    if _topic_title(topic).startswith(("[P0] ", "[P1] ", "[P2] ", "[P3] ")):
+        _validate_case_topic(topic)
+        return 1
+    return sum(_validate_group_or_case(child) for child in _child_topics(topic))
+
+
+def run_artifact_regression(input_path: Path, output_path: Path) -> None:
+    completed = subprocess.run(
+        [sys.executable, str(XMIND_BUILD_PATH), str(input_path), str(output_path)],
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    require(
+        completed.returncode == 0,
+        f"XMind build failed for {input_path}: {completed.stderr.strip()}",
+    )
+    require(
+        output_path.exists() and output_path.stat().st_size > 0,
+        f"XMind output is missing or empty: {output_path}",
+    )
+    with zipfile.ZipFile(output_path) as archive:
+        require(
+            XMIND_MEMBERS <= set(archive.namelist()),
+            f"XMind members are incomplete: {output_path}",
+        )
+        root = ET.fromstring(archive.read("content.xml"))
+    require(root.tag.endswith("xmap-content"), "content.xml root must be xmap-content")
+    root_topic = root.find("./x:sheet/x:topic", XMIND_NS)
+    require(root_topic is not None, "content.xml must contain a root topic")
+    require(bool(_topic_title(root_topic)), "root topic title must not be empty")
+    groups = _child_topics(root_topic)
+    require(groups, "root topic must contain groups")
+    case_count = sum(_validate_group_or_case(group) for group in groups)
+    require(case_count > 0, "XMind must contain at least one case")
+
+
 def validate_artifact_suite(benchmark: dict) -> None:
     for artifact in benchmark["artifact_suite"]:
         require(
             "output_xmind" not in artifact,
             f"{artifact['id']} must not reference a checked-in XMind",
         )
-        case_tree = load_json(ROOT / artifact["input_json"])
-        metrics = QUALITY_MODULE.compute_metrics(case_tree)
-        require(
-            metrics["schema_complete_rate"] == 1.0,
-            f"{artifact['id']} artifact input must satisfy strict schema",
-        )
+        input_path = ROOT / artifact["input_json"]
+        with tempfile.TemporaryDirectory() as temp_dir:
+            output_path = Path(temp_dir) / f"{artifact['id']}.xmind"
+            run_artifact_regression(input_path, output_path)
 
 
 def validate() -> None:
