@@ -1,0 +1,28 @@
+{
+  "root_title": "用例集",
+  "note": "订单创建回归",
+  "groups": [
+    {
+      "title": "订单 - 创建流程",
+      "note": "采购员创建订单的核心工作流",
+      "groups": [],
+      "cases": [
+        {
+          "title": "[P1] 订单 - 创建成功",
+          "priority": "P1",
+          "note": "验证订单创建和状态落地",
+          "preconditions": "采购员已登录且存在有效商品",
+          "steps": [
+            {
+              "action": "填写有效订单并提交",
+              "expected": "订单创建且状态显示为已创建",
+              "note": "preconditions、action、expected 的末尾不使用中文句号"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "_comment_punctuation": "仅清理 preconditions、steps[].action、steps[].expected 末尾中文句号；保留内部中文句号、英文句点、标题和 note 标点",
+  "_comment_grouping": "多个平级 group 共享真实业务前缀时可使用 `父级 - 子模块`，构建器会在至少两个兄弟匹配时自动合并"
+}
