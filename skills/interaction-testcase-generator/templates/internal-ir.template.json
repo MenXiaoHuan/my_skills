@@ -1,0 +1,126 @@
+{
+  "version": "1.0",
+  "sources": [
+    {
+      "id": "SRC-REQ-1",
+      "type": "requirement",
+      "title": "订单创建需求",
+      "locator": "验收标准/1",
+      "facts": ["用户可提交订单", "订单创建后列表与详情一致"]
+    },
+    {
+      "id": "SRC-API-1",
+      "type": "api",
+      "title": "创建订单接口",
+      "locator": "API/POST /orders",
+      "facts": ["成功返回 201", "幂等键防止重复创建"]
+    }
+  ],
+  "business_goals": [
+    {
+      "id": "GOAL-1",
+      "risk": "high",
+      "required_paths": ["positive", "critical_failure"],
+      "source_refs": ["SRC-REQ-1"]
+    }
+  ],
+  "actors": [{"id": "ACTOR-1", "name": "采购员", "source_refs": ["SRC-REQ-1"]}],
+  "modules": [{"id": "MOD-ORDER", "name": "订单", "source_refs": ["SRC-REQ-1"]}],
+  "workflows": [
+    {
+      "id": "WF-ORDER-CREATE",
+      "module_ref": "MOD-ORDER",
+      "actor_refs": ["ACTOR-1"],
+      "start_state": "draft",
+      "actions": ["提交订单"],
+      "end_state": "created",
+      "failure_paths": ["接口超时"],
+      "source_refs": ["SRC-REQ-1"]
+    }
+  ],
+  "states": [
+    {
+      "id": "STATE-CREATED",
+      "entity": "订单",
+      "value": "created",
+      "source_refs": ["SRC-REQ-1"]
+    }
+  ],
+  "business_rules": [],
+  "api_contracts": [
+    {
+      "id": "API-CREATE-ORDER",
+      "method": "POST",
+      "path": "/orders",
+      "auth": ["采购员"],
+      "parameters": ["idempotency_key"],
+      "responses": [201],
+      "error_codes": [409],
+      "side_effects": ["创建订单"],
+      "idempotency": "相同键不重复创建",
+      "dependencies": [],
+      "source_refs": ["SRC-API-1"]
+    }
+  ],
+  "data_entities": [{"id": "ENTITY-ORDER", "name": "订单"}],
+  "data_invariants": [
+    {
+      "id": "INV-ORDER-VIEW",
+      "scope": "同一订单与同一数据快照",
+      "left": "订单列表",
+      "relation": "equals",
+      "right": "订单详情",
+      "join_keys": ["order_id"],
+      "consistency": "strong",
+      "allowed_delay": null,
+      "source_refs": ["SRC-REQ-1"]
+    }
+  ],
+  "dependencies": [],
+  "risks": [{"id": "RISK-1", "level": "high", "description": "重复创建订单"}],
+  "coverage_atoms": [
+    {
+      "id": "ATOM-FLOW-1",
+      "kind": "interaction_flow",
+      "target_ref": "WF-ORDER-CREATE",
+      "required": true,
+      "risk_weight": 5,
+      "source_refs": ["SRC-REQ-1"]
+    },
+    {
+      "id": "ATOM-API-1",
+      "kind": "api_contract",
+      "target_ref": "API-CREATE-ORDER",
+      "required": true,
+      "risk_weight": 5,
+      "source_refs": ["SRC-API-1"]
+    },
+    {
+      "id": "ATOM-DATA-1",
+      "kind": "data_consistency",
+      "target_ref": "INV-ORDER-VIEW",
+      "required": true,
+      "risk_weight": 4,
+      "source_refs": ["SRC-REQ-1"]
+    }
+  ],
+  "candidate_cases": [
+    {
+      "id": "CASE-1",
+      "module_ref": "MOD-ORDER",
+      "title": "创建订单并核对列表详情",
+      "source_refs": ["SRC-REQ-1", "SRC-API-1"],
+      "goal_refs": ["GOAL-1"],
+      "risk_refs": ["RISK-1"],
+      "dimensions": ["interaction_flow", "api_contract", "data_consistency"],
+      "coverage_atoms": ["ATOM-FLOW-1", "ATOM-API-1", "ATOM-DATA-1"],
+      "invariant_refs": ["INV-ORDER-VIEW"],
+      "path_type": "positive",
+      "preconditions": "采购员已登录且订单数据有效",
+      "steps": [{"action": "提交订单", "expected": "订单创建且列表详情一致"}],
+      "execution_cost": 2
+    }
+  ],
+  "assumptions": [],
+  "conflicts": []
+}

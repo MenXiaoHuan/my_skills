@@ -1,0 +1,17 @@
+{
+  "source_coverage": {},
+  "goal_coverage": {},
+  "risk_coverage": {},
+  "dimension_coverage": {},
+  "api_coverage": {},
+  "data_invariant_coverage": {},
+  "state_transition_coverage": {},
+  "required_atom_coverage": {},
+  "duplicate_clusters": [],
+  "merged_cases": [],
+  "uncovered_atoms": [],
+  "selected_case_ids": [],
+  "assumptions": [],
+  "conflicts": [],
+  "quality_gates": {}
+}
