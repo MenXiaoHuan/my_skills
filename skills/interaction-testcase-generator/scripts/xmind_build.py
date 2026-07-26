@@ -5,7 +5,11 @@ import sys
 import uuid
 import zipfile
 from datetime import datetime, timezone
+from pathlib import Path
 from xml.etree.ElementTree import Element, SubElement, tostring
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from validate_case_tree import ValidationError, validate_case_tree
 
 
 NS_CONTENT = "urn:xmind:xmap:xmlns:content:2.0"
@@ -71,7 +75,6 @@ def _priority_marker(priority):
         "P1": "priority-2",
         "P2": "priority-3",
         "P3": "priority-4",
-        "P4": "priority-5",
     }
     if not priority:
         return None
@@ -197,9 +200,9 @@ def _normalize_groups(groups):
 def _render_case(parent_topic, case):
     case_topic = _topic(
         parent_topic,
-        _case_title(case.get("title") or "用例标题", case.get("priority")),
+        _case_title(case["title"], case["priority"]),
         note=case.get("note"),
-        marker=_priority_marker(case.get("priority")),
+        marker=_priority_marker(case["priority"]),
     )
     case_attached = _attach_children(case_topic)
 
@@ -217,12 +220,7 @@ def _render_case(parent_topic, case):
     steps_topic = _topic(case_attached, "步骤")
     steps_attached = _attach_children(steps_topic)
 
-    steps = case.get("steps") or []
-    if not steps:
-        _topic(steps_attached, "步骤 1")
-        return
-
-    for index, step in enumerate(steps, start=1):
+    for index, step in enumerate(case["steps"], start=1):
         action = _strip_trailing_chinese_periods(step.get("action"))
         expected = _strip_trailing_chinese_periods(step.get("expected"))
         step_title = f"步骤 {index}: {action}" if action else f"步骤 {index}"
@@ -235,7 +233,7 @@ def _render_case(parent_topic, case):
 def _render_group(parent_topic, group):
     group_topic = _topic(
         parent_topic,
-        group.get("title") or "分组",
+        group["title"],
         note=group.get("note"),
     )
     group_attached = _attach_children(group_topic)
@@ -248,6 +246,7 @@ def _render_group(parent_topic, group):
 
 
 def build_content_xml(data):
+    validate_case_tree(data)
     xmap = Element(f"{{{NS_CONTENT}}}xmap-content", {"version": "2.0"})
 
     sheet = SubElement(xmap, f"{{{NS_CONTENT}}}sheet", {"id": _u()})
@@ -305,6 +304,7 @@ def main():
     with open(input_path, "r", encoding="utf-8") as file:
         data = json.load(file)
 
+    validate_case_tree(data)
     output_dir = os.path.dirname(output_path) or "."
     os.makedirs(output_dir, exist_ok=True)
 
