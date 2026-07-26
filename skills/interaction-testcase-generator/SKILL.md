@@ -4,97 +4,37 @@ description: "Creates detailed interaction-focused QA test cases and XMind trees
 allowed-tools: Agent Task
 ---
 
-`interaction-testcase-generator` creates structured detailed QA test cases for interaction validation, usually delivered as `.xmind`.
+`interaction-testcase-generator` 将需求、原型、API 和技术设计转为可执行的详细 QA 用例及 `.xmind`。它不生成测试计划、检查项、代码评审或单元测试。
 
 ## Authority Map
 
-- `references/decision-rules.md`: when deciding ask vs assume vs `draft`
-- `references/priority-rubric.md`: when `P0/P1/P2/P3` grading is uncertain
-- `references/output-rules.md`: artifact terminology, output contract, naming, and XMind hierarchy
-- `references/grouping-rules.md`: when module-first structure, `Miscellaneous`, and parent-child lineage matter
-- `references/quality-rules.md`: when case granularity, exception coverage, boundary judgment, or thin-case control matters
-- `references/multi-candidate-rules.md`: default dual-candidate execution and adjudication requirements
-- `references/coverage-ledger-rules.md`: when broad multi-module prompts need stable leaf-case coverage and per-module budgets
-- `examples/`: when the domain shape is similar and you need few-shot guidance
-- `templates/` and `scripts/xmind_build.py`: only when building the final `.xmind`
+- `references/generation-protocol.md`：信息缺口、候选模式、覆盖与裁决流程
+- `references/test-model.md`：内部 IR、coverage atom、分类与业务归属
+- `references/test-design-methods.md`：交互、规则、状态、API、数据与异常设计方法
+- `references/quality-gates.md`：覆盖计算、去重、最小充分集和门禁
+- `references/risk-priority.md`：风险权重与 `P0/P1/P2/P3`
+- `references/output-contract.md`：最终 JSON、XMind、标点和失败回退
+- `examples/`：仅在领域形态接近时读取一个示例
+- `templates/` 与 `scripts/`：构建和验证产物时使用
 
-Prefer one targeted read over bulk-loading the whole skill folder.
+优先定向读取一份 reference，不批量加载整个目录。
 
-## Default Workflow
+## 五阶段工作流
 
-1. Read the requirement, technical design, API, prototype, or change summary.
-2. Clarify scope, affected systems, roles, and release risk.
-3. Extract and trace `business goal → core flow → failure risk → verification intent → observable assertion`.
-4. Decide whether gaps require a follow-up question, an explicit assumption, or a `draft`.
-5. Build a compact module-first case tree, then backfill permissions, exceptions, data consistency, and boundary coverage into the owning module or `Miscellaneous`.
-6. Always use dual-candidate mode for detailed case generation. Use parallel subtask tools for 2 candidates when available; otherwise create 2 separate internal drafts serially:
-   - Candidate A: `coverage-first`
-   - Candidate B: `quality-first`
-7. Require explicit Candidate A and Candidate B internal drafts, a target top-level module/workflow set, a goal-and-risk-aware coverage ledger, per-module or per-workflow case budget, and an adjudication table before finalizing.
-8. Map every core business goal to at least one case. Map every high-risk goal to at least one positive case and one critical-failure case.
-9. Run exception and boundary scans, then expand only meaningful coverage into detailed QA cases with priorities.
-10. Run a second-pass coverage gap scan across scenario families before finalizing; do not deliver the first draft before the gap scan is complete.
-11. Self-check with `references/grouping-rules.md`, `references/quality-rules.md`, and `references/coverage-ledger-rules.md`.
-12. Keep each case title short, write concise `note`, include `preconditions`, structured `steps`, and expected results, build normalized JSON, and generate the final `.xmind` when file generation is available.
-13. In a final-answer-only or runtime evaluation environment, return exactly one fenced ```json block containing the final normalized case tree before any XMind/script fallback. Do not include prose before or after that JSON block.
-
-## Analysis Pattern
-
-For broad or dense material, split only materially independent tracks. Use parallel subtask tools such as `Agent` or `Task` when available; otherwise keep the same decomposition and create separate serial internal drafts.
-
-Preferred rhythm: parallelize independent analysis, consolidate serially, parallelize focused gap checks, then finalize serially.
-
-Each track should return `scope`, `key risks`, coverage/exception/boundary candidates, open questions, and recommended cases.
-
-The final structure should usually be stable modules or workflows, with happy paths, state changes, permissions, exceptions, consistency, and justified boundaries attached to the owning module. Use one compact `Miscellaneous` bucket only for residual cases.
-
-Dual-candidate roles differ on purpose:
-- `coverage-first`: completeness, exception expansion, permission/state splits, dependency failures, and regression-sensitive paths
-- `quality-first`: one-intent-per-case, clearer expectations, tighter lineage, and weak-case rejection
-
-The adjudicator should keep shared high-value cases, candidate-only cases worth keeping, priority/grouping fixes, and the final normalized case tree; drop duplicates and weak cases.
+1. **证据提取**：识别来源、业务目标、角色、模块、流程、规则、状态、接口、数据关系、依赖和风险。关键事实必须有来源；按 `generation-protocol.md` 决定追问、假设或 `draft`。
+2. **内部测试 IR**：按 `test-model.md` 建模，并把最小可验证事实拆成 coverage atoms。禁止手填可由映射推导的覆盖率。
+3. **候选生成**：按 `test-design-methods.md` 生成单一验证意图、独立可构造、结果可观察的候选。简单低风险单模块使用单候选并执行独立 gap scan；高风险、多模块、含接口或跨系统链路使用 `coverage-first` 与 `quality-first` 双候选。
+4. **覆盖与裁决**：按 `quality-gates.md` 计算覆盖、识别标题和验证指纹重复、裁决覆盖包含关系，并选择风险加权的最小充分集。每个高风险目标必须覆盖正向与关键失败路径。
+5. **兼容输出**：按 `risk-priority.md` 定级，转为 `output-contract.md` 规定的 case tree，严格校验后生成 XMind。默认只交付最终结果。
 
 ## Guardrails
 
-- Treat requirement and technical materials as the source of truth; ask only when gaps change scope, workflow meaning, role behavior, expected outcomes, or release risk.
-- If only secondary details are missing, continue with explicit assumptions; if critical workflow, role, contract, or dependency facts are missing or contradictory, produce a `draft`.
-- `P0` is a highlight label, not a coverage filter.
-- Expand plausible exception paths, scan boundaries every time, and output boundary cases only when the source semantics justify them.
-- Prefer module-first organization over horizontal audit buckets; attach cross-cutting coverage to owning modules and use one compact `Miscellaneous` bucket only when ownership is unclear.
-- Dual-candidate mode is the default generation path. It must produce explicit internal A/B drafts and an adjudication table; do not claim dual-candidate mode was used unless `references/multi-candidate-rules.md` is satisfied.
-- In dual-candidate mode, freeze the final top-level module set before expanding leaf cases. The final tree must use the frozen target top-level module set unless source-backed internal notes justify a deviation.
-- For broad, dense, or reference-backed prompts, apply `references/coverage-ledger-rules.md`: module budgets are not coverage caps, use a configurable reference coverage floor when a trusted reference exists, and do not reduce meaningful cases just to fit 4-6 cases per module.
-- Use source-defined modules, workflows, entities, interfaces, or pages as top-level groups; preserve canonical display names and avoid generic suffix drift unless the source uses that exact name.
-- Each case title must include the owning module name or a concrete scenario noun; reject generic repeated titles such as basic module validation, data export validation, data correctness validation, empty-state validation, and module API error handling when they appear under multiple modules.
-- Each detailed case must include `preconditions`, `steps`, and expected results. If no setup is needed, set `preconditions` to `No special preconditions`.
-- Every step must include an expected result that states the observable outcome, data change, state change, permission result, or error handling result.
-- Preconditions must contain only role, permission, data, state, and environment setup, and must not depend on another case's execution result.
-- Each key step must identify the entry, operation target, necessary input, and trigger action. Each expected result must identify the verification target and observable state or data change.
-- Exception expectations must verify error feedback plus applicable data invariance, compensation, or recovery behavior.
-- Every core business goal must map to at least one case; every high-risk goal must map to both a positive path and a critical-failure path.
-- `case.preconditions`, `case.steps[].action`, and `case.steps[].expected` must not end with one or more Chinese full stops (`。`). Preserve internal Chinese full stops, English periods, and punctuation in titles, groups, descriptions, and notes.
-- When backend technical documents or API specifications are provided, link business actions with key API verification in the execution steps.
-- Before finalizing, run a coverage gap scan across scenario families and fill source-backed gaps; do not add thin cases solely to increase count.
-- The final output must be a single adjudicated result. Do not expose raw candidate drafts, A/B comparisons, or internal merge artifacts unless the user explicitly asks for debugging output.
-- In final-answer-only or runtime evaluation environment, summaries, coverage lists, statistics, or promises are not valid deliverables. Return the final normalized JSON case tree, not a plan to inspect files or generate cases later.
-- do not start the final response with exploration promises; finish internal analysis first, then output the final normalized case tree.
-- In final-answer-only or runtime evaluation environment, do not inspect repository files unless the user explicitly asks for codebase analysis; use the provided prompt content and explicit assumptions instead.
-- Default output language is Simplified Chinese unless the user asks for English.
-
-## XMind Generation
-
-Use `references/output-rules.md` for the JSON schema and XMind contract.
-
-1. Build a normalized JSON case tree.
-2. Write the JSON to an internal build file such as `.test_case_xmind_input.json`.
-3. Populate `note` for each case by default. Use it for focus, risk, or business-context supplements, not for repeating the title.
-4. Keep `title` short and scannable. Put secondary explanation in `note`.
-5. Run:
-
-```bash
-python3 scripts/xmind_build.py .test_case_xmind_input.json output.xmind
-```
-
-6. Verify `output.xmind` exists and is non-empty before responding.
-
-If `.xmind` generation fails, explain the exact failure and provide a fallback outline only as a failure mode.
+- 材料是事实来源；不得臆造核心流程、权限、接口、状态或数据规则。
+- API case 必须追溯到接口来源；数据一致性 case 必须追溯到数据不变量。
+- `P0` 是高亮标签，不是覆盖过滤器。
+- 最终结构按业务模块或工作流组织；接口、数据、权限和异常回填所属模块，仅无法归属时使用一个紧凑的 `其他`。
+- 每个 case 必须有匹配优先级前缀的标题、`P0/P1/P2/P3`、非空字符串 `preconditions` 及非空 `steps`；每步必须有非空 `action` 和 `expected`。
+- `preconditions`、`action` 和 `expected` 不得以中文句号结尾。
+- 内部 IR、质量报告、原始候选和裁决草稿默认不向用户暴露。用户明确要求调试信息时可提供质量报告，但不提供原始候选。
+- 最终 JSON/XMind 必须保持 `output-contract.md` 的兼容层级。纯文本评测环境只输出一个 fenced JSON case tree，不附加说明。
+- 默认使用简体中文，除非用户指定其他语言。
