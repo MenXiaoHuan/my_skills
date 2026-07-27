@@ -1,5 +1,6 @@
 # Skill Maintenance
 
+- 生产脚本与 eval 工具要求 Python >=3.10。
 - `SKILL.md` 只保留触发边界、Authority Map、五阶段工作流和不可忽略的不变量。
 - 每类规则只能有一份权威 reference；README 与 example 不复制规则。
 - 修改 schema、受控枚举、覆盖算法或输出契约时，同步修改生产测试、eval 测试、fixture 和 baseline。

@@ -34,6 +34,38 @@ def child_topics(topic):
 
 
 class XMindArtifactE2ETests(unittest.TestCase):
+    def test_structure_quality_suite_rejects_unknown_fields(self):
+        with self.assertRaisesRegex(
+            SystemExit,
+            "structure_unknown has unknown fields: unexpected",
+        ):
+            MODULE.validate_structure_quality_config(
+                {
+                    "id": "structure_unknown",
+                    "input_json": "cases/case_001_app_cart_offline.json",
+                    "ir_json": "ir/interaction-cart.json",
+                    "selected_case_ids": ["C-CART-ADD"],
+                    "unexpected": True,
+                }
+            )
+
+    def test_artifact_suite_rejects_unknown_fields(self):
+        with self.assertRaisesRegex(
+            SystemExit,
+            "artifact_unknown has unknown fields: unexpected",
+        ):
+            MODULE.validate_artifact_suite(
+                {
+                    "artifact_suite": [
+                        {
+                            "id": "artifact_unknown",
+                            "input_json": "cases/case_001_app_cart_offline.json",
+                            "unexpected": True,
+                        }
+                    ]
+                }
+            )
+
     def test_module_fixture_uses_its_own_ir_and_selected_case_binding(self):
         baseline = json.loads(
             (ROOT / "baseline.json").read_text(encoding="utf-8")

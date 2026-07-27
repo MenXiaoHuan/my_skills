@@ -2,6 +2,8 @@
 
 评测覆盖 strict schema、IR 驱动质量指标和真实 XMind artifact。
 
+运行 eval 测试与 benchmark 工具需要 Python >=3.10。
+
 ## 目录
 
 - `cases/`：通过生产 strict validator 的标准 case tree

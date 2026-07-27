@@ -30,6 +30,38 @@ XMIND_MEMBERS = {
     "META-INF/manifest.xml",
 }
 XMIND_NS = {"x": "urn:xmind:xmap:xmlns:content:2.0"}
+STRUCTURE_QUALITY_FIELDS = {
+    "id",
+    "input_json",
+    "ir_json",
+    "selected_case_ids",
+    "max_top_level_groups",
+    "required_top_level_groups",
+    "forbidden_top_level_groups",
+    "requires_other_group",
+    "max_weak_expectations",
+    "max_empty_expected",
+    "max_missing_preconditions",
+    "min_schema_complete_rate",
+    "max_duplicate_titles",
+    "min_average_steps_per_case",
+    "max_trailing_chinese_periods",
+    "min_business_goal_coverage_rate",
+    "min_high_risk_goal_path_coverage_rate",
+    "max_precondition_action_leaks",
+    "max_unobservable_expectations",
+    "min_required_atom_coverage_rate",
+    "max_schema_errors",
+    "max_invalid_priorities",
+    "max_priority_prefix_mismatches",
+    "max_normalized_duplicate_titles",
+    "max_fingerprint_duplicate_clusters",
+    "max_api_without_source",
+    "max_data_without_invariant",
+    "min_api_coverage_rate",
+    "min_data_invariant_coverage_rate",
+}
+ARTIFACT_FIELDS = {"id", "input_json"}
 
 QUALITY_SPEC = importlib.util.spec_from_file_location(
     "check_case_tree_quality",
@@ -88,6 +120,11 @@ def validate_suite_shape(benchmark: dict) -> None:
 
 def validate_structure_quality_config(case: dict) -> None:
     case_id = case["id"]
+    unknown_fields = sorted(set(case) - STRUCTURE_QUALITY_FIELDS)
+    require(
+        not unknown_fields,
+        f"{case_id} has unknown fields: {', '.join(unknown_fields)}",
+    )
     maximum_keys = (
         "max_top_level_groups",
         "max_weak_expectations",
@@ -368,6 +405,11 @@ def run_artifact_regression(input_path: Path, output_path: Path) -> None:
 
 def validate_artifact_suite(benchmark: dict) -> None:
     for artifact in benchmark["artifact_suite"]:
+        unknown_fields = sorted(set(artifact) - ARTIFACT_FIELDS)
+        require(
+            not unknown_fields,
+            f"{artifact['id']} has unknown fields: {', '.join(unknown_fields)}",
+        )
         require(
             "output_xmind" not in artifact,
             f"{artifact['id']} must not reference a checked-in XMind",

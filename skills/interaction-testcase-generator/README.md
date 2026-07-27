@@ -2,6 +2,8 @@
 
 该 Skill 将需求、原型、API 和技术设计转换为详细 QA case tree 与真实 XMind。生成规则从 `SKILL.md` 进入，并按 Authority Map 定向读取唯一权威 reference。
 
+运行生产脚本、测试与 eval 工具需要 Python >=3.10。
+
 ## 目录职责
 
 - `SKILL.md`：触发边界、Authority Map、五阶段工作流和强制不变量
