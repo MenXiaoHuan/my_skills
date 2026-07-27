@@ -5,6 +5,7 @@
       "title": "在线加购",
       "cases": [
         {
+          "case_id": "C-CART-ADD",
           "title": "[P0] 加入购物车 - 在线成功后角标和列表同步更新",
           "priority": "P0",
           "preconditions": "用户已登录；SKU 可售且库存充足",
@@ -18,6 +19,7 @@
           ]
         },
         {
+          "case_id": "C-CART-REPEAT",
           "title": "[P1] 重复加入 - 同一 SKU 数量累加",
           "priority": "P1",
           "preconditions": "购物车中已存在目标 SKU",
@@ -31,6 +33,7 @@
           ]
         },
         {
+          "case_id": "C-CART-STOCK",
           "title": "[P1] 库存不足 - 阻止加入并给出提示",
           "priority": "P1",
           "preconditions": "目标 SKU 可售但库存不足以支持本次加入",
@@ -49,6 +52,7 @@
       "title": "离线与恢复",
       "cases": [
         {
+          "case_id": "C-CART-OFFLINE",
           "title": "[P0] 离线加购 - 请求进入重试队列",
           "priority": "P0",
           "preconditions": "设备处于离线状态",
@@ -62,6 +66,7 @@
           ]
         },
         {
+          "case_id": "C-CART-SYNC",
           "title": "[P0] 网络恢复 - 自动同步后购物车数据一致",
           "priority": "P0",
           "preconditions": "重试队列中存在待同步的加购请求；网络已恢复",

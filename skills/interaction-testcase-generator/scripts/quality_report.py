@@ -12,6 +12,12 @@ FINGERPRINT_FIELDS = (
     "condition",
     "assertion_target",
     "post_state",
+    "actor_refs",
+    "permission_refs",
+    "state_refs",
+    "request_contract",
+    "recovery_behavior",
+    "business_result",
 )
 
 
@@ -22,6 +28,13 @@ def normalize_case_title(title: str) -> str:
 
 
 def _canonical(value):
+    if isinstance(value, dict):
+        return tuple(
+            sorted(
+                (_canonical(key), _canonical(item))
+                for key, item in value.items()
+            )
+        )
     if isinstance(value, list):
         return tuple(sorted(_canonical(item) for item in value))
     return re.sub(r"\s+", "", str(value or "")).lower()
@@ -74,7 +87,7 @@ def select_minimum_sufficient_cases(ir: dict) -> list[str]:
             case_id = str(case.get("id", ""))
             if not case_id or case_id in selected_ids:
                 continue
-            case_atoms = set(case.get("coverage_atoms", []))
+            case_atoms = set(case.get("coverage_atoms", [])) & required_atoms
             new_atoms = case_atoms - covered_atoms
             new_paths = (_case_paths(case) & required_paths) - covered_paths
             if not (new_atoms or new_paths):
@@ -98,8 +111,8 @@ def select_minimum_sufficient_cases(ir: dict) -> list[str]:
         case_id = str(best["id"])
         selected.append(case_id)
         selected_ids.add(case_id)
-        covered_atoms.update(best.get("coverage_atoms", []))
-        covered_paths.update(_case_paths(best))
+        covered_atoms.update(set(best.get("coverage_atoms", [])) & required_atoms)
+        covered_paths.update(_case_paths(best) & required_paths)
     return selected
 
 
@@ -145,7 +158,8 @@ def _duplicate_clusters(cases):
 
 
 def build_quality_report(ir: dict, selected_case_ids: list[str] | None = None) -> dict:
-    selected_case_ids = selected_case_ids or select_minimum_sufficient_cases(ir)
+    if selected_case_ids is None:
+        selected_case_ids = select_minimum_sufficient_cases(ir)
     selected_id_set = set(selected_case_ids)
     cases = [
         case
@@ -171,9 +185,9 @@ def build_quality_report(ir: dict, selected_case_ids: list[str] | None = None) -
     required_paths = _required_high_risk_paths(ir)
     covered_paths = {path for case in cases for path in _case_paths(case)}
 
-    api_ids = {item["id"] for item in ir.get("api_contracts", [])}
-    invariant_ids = {item["id"] for item in ir.get("data_invariants", [])}
-    state_ids = {item["id"] for item in ir.get("states", [])}
+    api_contracts = {
+        item["id"]: item for item in ir.get("api_contracts", [])
+    }
     api_atoms = {
         atom_id
         for atom_id, atom in atoms.items()
@@ -193,11 +207,26 @@ def build_quality_report(ir: dict, selected_case_ids: list[str] | None = None) -
     data_without_invariant = []
     for case in cases:
         case_atoms = set(case.get("coverage_atoms", []))
-        if case_atoms & api_atoms and not (set(case.get("source_refs", [])) & source_ids):
-            api_without_source.append(str(case["id"]))
-        if case_atoms & data_atoms and not (
-            set(case.get("invariant_refs", [])) & invariant_ids
+        targeted_api_ids = {
+            atoms[atom_id].get("target_ref")
+            for atom_id in case_atoms & api_atoms
+            if atom_id in atoms
+        }
+        case_sources = set(case.get("source_refs", []))
+        if targeted_api_ids and any(
+            not (
+                case_sources
+                & set(api_contracts.get(api_id, {}).get("source_refs", []))
+            )
+            for api_id in targeted_api_ids
         ):
+            api_without_source.append(str(case["id"]))
+        targeted_invariant_ids = {
+            atoms[atom_id].get("target_ref")
+            for atom_id in case_atoms & data_atoms
+            if atom_id in atoms
+        }
+        if not targeted_invariant_ids <= set(case.get("invariant_refs", [])):
             data_without_invariant.append(str(case["id"]))
 
     duplicate_clusters = _duplicate_clusters(cases)
@@ -241,7 +270,7 @@ def build_quality_report(ir: dict, selected_case_ids: list[str] | None = None) -
         "dimension_coverage": _coverage(dimensions, covered_dimensions),
         "api_coverage": _coverage(api_atoms, covered_atom_ids),
         "data_invariant_coverage": _coverage(data_atoms, covered_atom_ids),
-        "state_transition_coverage": _coverage(state_atoms or state_ids, covered_atom_ids),
+        "state_transition_coverage": _coverage(state_atoms, covered_atom_ids),
         "required_atom_coverage": _coverage(required_atom_ids, covered_atom_ids),
         "duplicate_clusters": duplicate_clusters,
         "merged_cases": [],

@@ -94,6 +94,45 @@ class ValidateCaseTreeTests(unittest.TestCase):
                 with self.assertRaisesRegex(MODULE.ValidationError, path):
                     MODULE.validate_case_tree(data)
 
+    def test_rejects_non_canonical_priority_type_and_value(self):
+        invalid_priorities = ["p1", 1, None]
+        for priority in invalid_priorities:
+            with self.subTest(priority=priority):
+                tree = valid_tree()
+                tree["groups"][0]["cases"][0]["priority"] = priority
+                with self.assertRaisesRegex(
+                    MODULE.ValidationError,
+                    r"groups\[0\]\.cases\[0\]\.priority",
+                ):
+                    MODULE.validate_case_tree(tree)
+
+    def test_rejects_non_string_notes_at_every_supported_level(self):
+        mutations = [
+            (lambda tree: tree.__setitem__("note", []), r"note"),
+            (
+                lambda tree: tree["groups"][0].__setitem__("note", 1),
+                r"groups\[0\]\.note",
+            ),
+            (
+                lambda tree: tree["groups"][0]["cases"][0].__setitem__(
+                    "note", {}
+                ),
+                r"groups\[0\]\.cases\[0\]\.note",
+            ),
+            (
+                lambda tree: tree["groups"][0]["cases"][0]["steps"][0].__setitem__(
+                    "note", False
+                ),
+                r"groups\[0\]\.cases\[0\]\.steps\[0\]\.note",
+            ),
+        ]
+        for mutate, path in mutations:
+            with self.subTest(path=path):
+                tree = valid_tree()
+                mutate(tree)
+                with self.assertRaisesRegex(MODULE.ValidationError, path):
+                    MODULE.validate_case_tree(tree)
+
 
 if __name__ == "__main__":
     unittest.main()

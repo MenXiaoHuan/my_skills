@@ -1,0 +1,89 @@
+{
+  "version": "1.0",
+  "sources": [
+    {"id": "SRC-PROTOTYPE", "type": "prototype"},
+    {"id": "SRC-API", "type": "api"}
+  ],
+  "business_goals": [
+    {
+      "id": "G-MODULES",
+      "risk": "high",
+      "required_paths": ["positive", "critical_failure"]
+    }
+  ],
+  "api_contracts": [
+    {"id": "API-LANDSCAPE", "source_refs": ["SRC-API"]}
+  ],
+  "data_invariants": [],
+  "states": [],
+  "coverage_atoms": [
+    {
+      "id": "A-FILTER",
+      "kind": "interaction_flow",
+      "target_ref": "G-MODULES",
+      "required": true,
+      "risk_weight": 4
+    },
+    {
+      "id": "A-LANDSCAPE",
+      "kind": "api_contract",
+      "target_ref": "API-LANDSCAPE",
+      "required": true,
+      "risk_weight": 5
+    },
+    {
+      "id": "A-TREND",
+      "kind": "business_rule",
+      "target_ref": "G-MODULES",
+      "required": true,
+      "risk_weight": 4
+    },
+    {
+      "id": "A-FALLBACK",
+      "kind": "exception_recovery",
+      "target_ref": "G-MODULES",
+      "required": true,
+      "risk_weight": 3
+    }
+  ],
+  "candidate_cases": [
+    {
+      "id": "C-FILTER",
+      "title": "切换行业刷新页面模块",
+      "source_refs": ["SRC-PROTOTYPE"],
+      "goal_refs": ["G-MODULES"],
+      "path_type": "positive",
+      "coverage_atoms": ["A-FILTER"],
+      "execution_cost": 1
+    },
+    {
+      "id": "C-LANDSCAPE",
+      "title": "核心指标与接口一致",
+      "source_refs": ["SRC-API"],
+      "goal_refs": ["G-MODULES"],
+      "path_type": "positive",
+      "coverage_atoms": ["A-LANDSCAPE"],
+      "execution_cost": 1
+    },
+    {
+      "id": "C-TREND",
+      "title": "时间粒度切换后重新聚合",
+      "source_refs": ["SRC-PROTOTYPE"],
+      "goal_refs": ["G-MODULES"],
+      "path_type": "positive",
+      "coverage_atoms": ["A-TREND"],
+      "execution_cost": 1
+    },
+    {
+      "id": "C-FALLBACK",
+      "title": "缺少筛选参数时安全兜底",
+      "source_refs": ["SRC-PROTOTYPE"],
+      "goal_refs": ["G-MODULES"],
+      "path_type": "critical_failure",
+      "coverage_atoms": ["A-FALLBACK"],
+      "execution_cost": 1
+    }
+  ],
+  "assumptions": [],
+  "conflicts": []
+}

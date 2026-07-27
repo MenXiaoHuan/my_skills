@@ -3,12 +3,13 @@
   "sources": [{"id": "SRC-REQ", "type": "requirement"}, {"id": "SRC-TECH", "type": "technical_design"}],
   "business_goals": [{"id": "G-APPROVAL", "risk": "high", "required_paths": ["positive", "critical_failure"]}],
   "api_contracts": [],
-  "data_invariants": [],
+  "data_invariants": [{"id": "INV-EXPORT", "source_refs": ["SRC-REQ"]}],
   "states": [{"id": "STATE-PENDING"}, {"id": "STATE-DRAFT"}],
   "coverage_atoms": [
     {"id": "A-SUBMIT", "kind": "state_transition", "target_ref": "STATE-PENDING", "required": true, "risk_weight": 5},
     {"id": "A-REJECT", "kind": "state_transition", "target_ref": "STATE-DRAFT", "required": true, "risk_weight": 5},
-    {"id": "A-ERP", "kind": "exception_recovery", "target_ref": "G-APPROVAL", "required": true, "risk_weight": 5}
+    {"id": "A-ERP", "kind": "exception_recovery", "target_ref": "G-APPROVAL", "required": true, "risk_weight": 5},
+    {"id": "A-EXPORT", "kind": "data_consistency", "target_ref": "INV-EXPORT", "required": false, "risk_weight": 3}
   ],
   "candidate_cases": [
     {
@@ -26,8 +27,27 @@
       "source_refs": ["SRC-REQ"],
       "goal_refs": ["G-APPROVAL"],
       "path_type": "critical_failure",
-      "coverage_atoms": ["A-REJECT", "A-ERP"],
+      "coverage_atoms": ["A-REJECT"],
       "execution_cost": 2
+    },
+    {
+      "id": "C-ERP",
+      "title": "ERP 落账失败可追踪",
+      "source_refs": ["SRC-TECH"],
+      "goal_refs": ["G-APPROVAL"],
+      "path_type": "recovery",
+      "coverage_atoms": ["A-ERP"],
+      "execution_cost": 2
+    },
+    {
+      "id": "C-EXPORT",
+      "title": "筛选列表与导出一致",
+      "source_refs": ["SRC-REQ"],
+      "invariant_refs": ["INV-EXPORT"],
+      "goal_refs": ["G-APPROVAL"],
+      "path_type": "positive",
+      "coverage_atoms": ["A-EXPORT"],
+      "execution_cost": 1
     }
   ],
   "assumptions": [],

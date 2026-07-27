@@ -243,10 +243,22 @@ def compute_metrics(
 
     if ir is not None:
         report = build_quality_report(ir, selected_case_ids)
+        selected_ids = [str(case_id) for case_id in report["selected_case_ids"]]
+        tree_case_ids = [
+            case.get("case_id")
+            for case in cases
+            if isinstance(case.get("case_id"), str)
+            and case["case_id"].strip()
+        ]
+        tree_ir_binding_passed = (
+            len(tree_case_ids) == len(cases)
+            and len(tree_case_ids) == len(set(tree_case_ids))
+            and set(tree_case_ids) == set(selected_ids)
+        )
         selected = [
             case
             for case in ir.get("candidate_cases", [])
-            if str(case.get("id")) in set(report["selected_case_ids"])
+            if str(case.get("id")) in set(selected_ids)
         ]
         fingerprint_counts = Counter(
             verification_fingerprint(case) for case in selected
@@ -264,7 +276,11 @@ def compute_metrics(
                 "fingerprint_duplicate_cluster_count": sum(
                     count > 1 for count in fingerprint_counts.values()
                 ),
-                "quality_gate_passed": report["quality_gates"]["passed"],
+                "tree_ir_binding_passed": tree_ir_binding_passed,
+                "quality_gate_passed": (
+                    report["quality_gates"]["passed"]
+                    and tree_ir_binding_passed
+                ),
             }
         )
     else:
@@ -276,6 +292,7 @@ def compute_metrics(
                 "api_without_source_count": 0,
                 "data_without_invariant_count": 0,
                 "fingerprint_duplicate_cluster_count": 0,
+                "tree_ir_binding_passed": None,
                 "quality_gate_passed": None,
             }
         )
@@ -288,6 +305,12 @@ def require(condition: bool, message: str) -> None:
 
 
 def validate_against_config(metrics: dict, config: dict, case_id: str) -> None:
+    if metrics.get("quality_gate_passed") is not None:
+        require(
+            metrics["quality_gate_passed"] is True,
+            f"{case_id} quality gate failed",
+        )
+
     max_top_level_groups = config.get("max_top_level_groups")
     if max_top_level_groups is not None:
         require(

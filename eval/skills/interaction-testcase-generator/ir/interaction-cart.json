@@ -7,9 +7,39 @@
   "states": [{"id": "STATE-SYNCED"}],
   "coverage_atoms": [
     {"id": "A-1", "kind": "interaction_flow", "target_ref": "G-1", "required": true, "risk_weight": 5},
-    {"id": "A-2", "kind": "exception_recovery", "target_ref": "G-1", "required": true, "risk_weight": 5}
+    {"id": "A-2", "kind": "exception_recovery", "target_ref": "G-1", "required": true, "risk_weight": 5},
+    {"id": "A-ADD", "kind": "interaction_flow", "target_ref": "G-1", "required": false, "risk_weight": 3},
+    {"id": "A-REPEAT", "kind": "business_rule", "target_ref": "G-1", "required": false, "risk_weight": 3},
+    {"id": "A-STOCK", "kind": "boundary", "target_ref": "G-1", "required": false, "risk_weight": 3}
   ],
   "candidate_cases": [
+    {
+      "id": "C-CART-ADD",
+      "title": "在线加购成功",
+      "source_refs": ["SRC-REQ"],
+      "goal_refs": ["G-1"],
+      "path_type": "positive",
+      "coverage_atoms": ["A-ADD"],
+      "execution_cost": 1
+    },
+    {
+      "id": "C-CART-REPEAT",
+      "title": "重复加购累加数量",
+      "source_refs": ["SRC-REQ"],
+      "goal_refs": ["G-1"],
+      "path_type": "positive",
+      "coverage_atoms": ["A-REPEAT"],
+      "execution_cost": 1
+    },
+    {
+      "id": "C-CART-STOCK",
+      "title": "库存不足阻止加购",
+      "source_refs": ["SRC-REQ"],
+      "goal_refs": ["G-1"],
+      "path_type": "critical_failure",
+      "coverage_atoms": ["A-STOCK"],
+      "execution_cost": 1
+    },
     {
       "id": "C-CART-SYNC",
       "title": "网络恢复后同步",

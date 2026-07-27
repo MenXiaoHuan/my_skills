@@ -8,6 +8,7 @@
       "groups": [],
       "cases": [
         {
+          "case_id": "CASE-1",
           "title": "[P1] 订单 - 创建成功",
           "priority": "P1",
           "note": "验证订单创建和状态落地",

@@ -5,6 +5,7 @@
       "title": "全局筛选器",
       "cases": [
         {
+          "case_id": "C-FILTER",
           "title": "[P1] 全局筛选器 - 切换行业 - 刷新页面模块数据",
           "priority": "P1",
           "preconditions": "页面已加载且当前行业存在可区分的数据",
@@ -22,6 +23,7 @@
       "title": "Market Landscape",
       "cases": [
         {
+          "case_id": "C-LANDSCAPE",
           "title": "[P0] Market Landscape - 展示核心指标 - 与接口返回一致",
           "priority": "P0",
           "preconditions": "Market Landscape 接口存在稳定测试数据",
@@ -39,6 +41,7 @@
       "title": "Trend Analysis",
       "cases": [
         {
+          "case_id": "C-TREND",
           "title": "[P1] Trend Analysis - 切换时间粒度 - 趋势图重新聚合",
           "priority": "P1",
           "preconditions": "趋势数据覆盖多个自然周",
@@ -56,6 +59,7 @@
       "title": "其他",
       "cases": [
         {
+          "case_id": "C-FALLBACK",
           "title": "[P2] 全局参数 - 缺失必要筛选参数 - 页面安全兜底",
           "priority": "P2",
           "preconditions": "可构造缺少必要筛选参数的页面请求",

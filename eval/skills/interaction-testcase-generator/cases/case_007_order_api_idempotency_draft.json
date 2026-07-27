@@ -5,6 +5,7 @@
       "title": "幂等键行为",
       "cases": [
         {
+          "case_id": "C-CREATE",
           "title": "[P0] 订单创建 - 首次带幂等键请求创建订单",
           "priority": "P0",
           "preconditions": "请求体满足下单必填约束",
@@ -18,6 +19,7 @@
           ]
         },
         {
+          "case_id": "C-REPLAY",
           "title": "[P0] 订单创建 - 相同 payload 的重复请求返回同一结果",
           "priority": "P0",
           "preconditions": "已存在同一幂等键且首次请求已成功",
@@ -31,6 +33,7 @@
           ]
         },
         {
+          "case_id": "C-CONFLICT",
           "title": "[P1] 订单创建 - 不同 payload 的重复请求返回冲突",
           "priority": "P1",
           "preconditions": "已存在同一幂等键对应的成功请求",
@@ -44,6 +47,7 @@
           ]
         },
         {
+          "case_id": "C-EXPIRED",
           "title": "[P1] 订单创建 - 过期幂等键允许重新创建订单",
           "priority": "P1",
           "preconditions": "同一幂等键已过期",

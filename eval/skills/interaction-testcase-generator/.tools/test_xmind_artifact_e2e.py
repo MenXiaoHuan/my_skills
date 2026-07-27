@@ -34,6 +34,65 @@ def child_topics(topic):
 
 
 class XMindArtifactE2ETests(unittest.TestCase):
+    def test_module_fixture_uses_its_own_ir_and_selected_case_binding(self):
+        baseline = json.loads(
+            (ROOT / "baseline.json").read_text(encoding="utf-8")
+        )
+        module_case = next(
+            case
+            for case in baseline["structure_quality_suite"]
+            if case["id"] == "structure_modules"
+        )
+        self.assertEqual(module_case["ir_json"], "ir/module-tree.json")
+        tree = json.loads(
+            (ROOT / module_case["input_json"]).read_text(encoding="utf-8")
+        )
+        tree_ids = {
+            case["case_id"]
+            for case in MODULE.QUALITY_MODULE.iter_cases(tree["groups"])
+        }
+        self.assertEqual(tree_ids, set(module_case["selected_case_ids"]))
+
+    def test_full_artifact_comparison_rejects_wrong_marker(self):
+        fixture = json.loads(
+            (ROOT / "cases" / "case_001_app_cart_offline.json").read_text(
+                encoding="utf-8"
+            )
+        )
+        with tempfile.TemporaryDirectory() as temp_dir:
+            temp_path = Path(temp_dir)
+            input_path = temp_path / "input.json"
+            output_path = temp_path / "artifact.xmind"
+            input_path.write_text(
+                json.dumps(fixture, ensure_ascii=False),
+                encoding="utf-8",
+            )
+            MODULE.run_artifact_regression(input_path, output_path)
+
+            with zipfile.ZipFile(output_path) as archive:
+                members = {
+                    name: archive.read(name)
+                    for name in archive.namelist()
+                }
+            root = ET.fromstring(members["content.xml"])
+            marker = root.find(".//x:marker-ref", NS)
+            marker.attrib["marker-id"] = "priority-4"
+            members["content.xml"] = ET.tostring(
+                root,
+                encoding="utf-8",
+                xml_declaration=True,
+            )
+            with zipfile.ZipFile(
+                output_path,
+                "w",
+                compression=zipfile.ZIP_DEFLATED,
+            ) as archive:
+                for name, content in members.items():
+                    archive.writestr(name, content)
+
+            with self.assertRaisesRegex(SystemExit, "artifact mismatch"):
+                MODULE.validate_artifact_matches_input(input_path, output_path)
+
     def test_builds_and_validates_real_xmind_from_standard_fixture(self):
         fixture = json.loads(
             (ROOT / "cases" / "case_001_app_cart_offline.json").read_text(

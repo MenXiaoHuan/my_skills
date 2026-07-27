@@ -7,9 +7,20 @@
   "states": [],
   "coverage_atoms": [
     {"id": "A-REPLAY", "kind": "api_contract", "target_ref": "API-ORDER", "required": true, "risk_weight": 5},
-    {"id": "A-CONFLICT", "kind": "api_contract", "target_ref": "API-ORDER", "required": true, "risk_weight": 5}
+    {"id": "A-CONFLICT", "kind": "api_contract", "target_ref": "API-ORDER", "required": true, "risk_weight": 5},
+    {"id": "A-CREATE", "kind": "api_contract", "target_ref": "API-ORDER", "required": false, "risk_weight": 3},
+    {"id": "A-EXPIRED", "kind": "api_contract", "target_ref": "API-ORDER", "required": false, "risk_weight": 3}
   ],
   "candidate_cases": [
+    {
+      "id": "C-CREATE",
+      "title": "首次幂等请求创建订单",
+      "source_refs": ["SRC-API"],
+      "goal_refs": ["G-API"],
+      "path_type": "positive",
+      "coverage_atoms": ["A-CREATE"],
+      "execution_cost": 1
+    },
     {
       "id": "C-REPLAY",
       "title": "相同请求返回原订单",
@@ -26,6 +37,15 @@
       "goal_refs": ["G-API"],
       "path_type": "critical_failure",
       "coverage_atoms": ["A-CONFLICT"],
+      "execution_cost": 1
+    },
+    {
+      "id": "C-EXPIRED",
+      "title": "过期幂等键允许重新创建",
+      "source_refs": ["SRC-API"],
+      "goal_refs": ["G-API"],
+      "path_type": "positive",
+      "coverage_atoms": ["A-EXPIRED"],
       "execution_cost": 1
     }
   ],

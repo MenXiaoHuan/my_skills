@@ -5,6 +5,7 @@
       "title": "提单与审批",
       "cases": [
         {
+          "case_id": "C-SUBMIT",
           "title": "[P0] 结算单提交 - 资料齐全后进入一级审批",
           "priority": "P0",
           "preconditions": "财务专员拥有提交权限；供应商、发票、账期和 ERP 对账信息齐全",
@@ -18,6 +19,7 @@
           ]
         },
         {
+          "case_id": "C-REJECT",
           "title": "[P1] 结算单审批 - 二级驳回后退回草稿并保留驳回原因",
           "priority": "P1",
           "preconditions": "结算单已通过一级审批并进入二级审批",
@@ -36,6 +38,7 @@
       "title": "权限与下游",
       "cases": [
         {
+          "case_id": "C-ERP",
           "title": "[P0] 结算单审批 - ERP 落账失败时状态可追踪并通知财务",
           "priority": "P0",
           "preconditions": "结算单已完成全部审批；ERP 接口返回失败",
@@ -49,6 +52,7 @@
           ]
         },
         {
+          "case_id": "C-EXPORT",
           "title": "[P1] 列表导出 - 当前筛选结果与导出内容一致",
           "priority": "P1",
           "preconditions": "列表已按供应商、账期和审批状态筛选",

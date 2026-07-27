@@ -18,6 +18,11 @@ def _require_non_empty_string(value, path):
         _fail(path, "must be a non-empty string")
 
 
+def _validate_optional_note(container, path):
+    if "note" in container and not isinstance(container["note"], str):
+        _fail(f"{path}.note" if path else "note", "must be a string")
+
+
 def _validate_case(case, path):
     if not isinstance(case, dict):
         _fail(path, "must be an object")
@@ -28,9 +33,10 @@ def _validate_case(case, path):
 
     _require_non_empty_string(case["title"], f"{path}.title")
     _require_non_empty_string(case["priority"], f"{path}.priority")
-    priority = case["priority"].strip().upper()
+    priority = case["priority"]
     if priority not in ALLOWED_PRIORITIES:
         _fail(f"{path}.priority", "must be one of P0/P1/P2/P3")
+    _validate_optional_note(case, path)
 
     prefix = PRIORITY_PREFIX_RE.match(case["title"].strip())
     if prefix is None:
@@ -46,6 +52,7 @@ def _validate_case(case, path):
         step_path = f"{path}.steps[{index}]"
         if not isinstance(step, dict):
             _fail(step_path, "must be an object")
+        _validate_optional_note(step, step_path)
         for field in ("action", "expected"):
             if field not in step:
                 _fail(f"{step_path}.{field}", "is required")
@@ -58,6 +65,7 @@ def _validate_group(group, path):
     if "title" not in group:
         _fail(f"{path}.title", "is required")
     _require_non_empty_string(group["title"], f"{path}.title")
+    _validate_optional_note(group, path)
 
     for field in ("groups", "cases"):
         value = group.get(field, [])
@@ -73,6 +81,7 @@ def _validate_group(group, path):
 def validate_case_tree(data: dict) -> dict:
     if not isinstance(data, dict):
         _fail("$", "must be an object")
+    _validate_optional_note(data, "")
     groups = data.get("groups")
     if not isinstance(groups, list) or not groups:
         _fail("groups", "must be a non-empty list")

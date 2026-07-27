@@ -39,6 +39,14 @@ QUALITY_MODULE = importlib.util.module_from_spec(QUALITY_SPEC)
 assert QUALITY_SPEC.loader is not None
 QUALITY_SPEC.loader.exec_module(QUALITY_MODULE)
 
+XMIND_SPEC = importlib.util.spec_from_file_location(
+    "xmind_build",
+    XMIND_BUILD_PATH,
+)
+XMIND_MODULE = importlib.util.module_from_spec(XMIND_SPEC)
+assert XMIND_SPEC.loader is not None
+XMIND_SPEC.loader.exec_module(XMIND_MODULE)
+
 
 def load_json(path: Path) -> dict:
     with path.open("r", encoding="utf-8") as file:
@@ -178,6 +186,113 @@ def _child_topics(topic):
     return topic.findall("./x:children/x:topics/x:topic", XMIND_NS)
 
 
+def _topic_semantics(topic):
+    note = topic.find("./x:notes/x:plain", XMIND_NS)
+    marker = topic.find("./x:markers/x:marker-ref", XMIND_NS)
+    return {
+        "title": _topic_title(topic),
+        "note": note.text if note is not None else None,
+        "marker": marker.attrib.get("marker-id") if marker is not None else None,
+        "children": [
+            _topic_semantics(child)
+            for child in _child_topics(topic)
+        ],
+    }
+
+
+def _expected_case_semantics(case: dict) -> dict:
+    preconditions = XMIND_MODULE._strip_trailing_chinese_periods(
+        case["preconditions"]
+    )
+    step_children = []
+    for index, step in enumerate(case["steps"], start=1):
+        action = XMIND_MODULE._strip_trailing_chinese_periods(step["action"])
+        expected = XMIND_MODULE._strip_trailing_chinese_periods(step["expected"])
+        step_children.append(
+            {
+                "title": f"步骤 {index}: {action}",
+                "note": step.get("note") or None,
+                "marker": None,
+                "children": [
+                    {
+                        "title": f"预期 {index}: {expected}",
+                        "note": None,
+                        "marker": None,
+                        "children": [],
+                    }
+                ],
+            }
+        )
+    return {
+        "title": XMIND_MODULE._case_title(case["title"], case["priority"]),
+        "note": case.get("note") or None,
+        "marker": XMIND_MODULE._priority_marker(case["priority"]),
+        "children": [
+            {
+                "title": "前置条件",
+                "note": None,
+                "marker": None,
+                "children": [
+                    {
+                        "title": preconditions,
+                        "note": None,
+                        "marker": None,
+                        "children": [],
+                    }
+                ],
+            },
+            {
+                "title": "步骤",
+                "note": None,
+                "marker": None,
+                "children": step_children,
+            },
+        ],
+    }
+
+
+def _expected_group_semantics(group: dict) -> dict:
+    return {
+        "title": XMIND_MODULE._sanitize_title(group["title"]),
+        "note": group.get("note") or None,
+        "marker": None,
+        "children": [
+            *[
+                _expected_group_semantics(child)
+                for child in group.get("groups") or []
+            ],
+            *[
+                _expected_case_semantics(case)
+                for case in group.get("cases") or []
+            ],
+        ],
+    }
+
+
+def validate_artifact_matches_input(input_path: Path, output_path: Path) -> None:
+    data = load_json(input_path)
+    expected = {
+        "title": XMIND_MODULE._sanitize_title(
+            data.get("root_title") or "用例集"
+        ),
+        "note": data.get("note") or None,
+        "marker": None,
+        "children": [
+            _expected_group_semantics(group)
+            for group in XMIND_MODULE._normalize_groups(data["groups"])
+        ],
+    }
+    with zipfile.ZipFile(output_path) as archive:
+        root = ET.fromstring(archive.read("content.xml"))
+    root_topic = root.find("./x:sheet/x:topic", XMIND_NS)
+    require(root_topic is not None, "artifact mismatch: missing root topic")
+    actual = _topic_semantics(root_topic)
+    require(
+        actual == expected,
+        "artifact mismatch: input tree, notes, priorities, or markers differ",
+    )
+
+
 def _validate_case_topic(topic) -> None:
     title = _topic_title(topic)
     require(
@@ -248,6 +363,7 @@ def run_artifact_regression(input_path: Path, output_path: Path) -> None:
     require(groups, "root topic must contain groups")
     case_count = sum(_validate_group_or_case(group) for group in groups)
     require(case_count > 0, "XMind must contain at least one case")
+    validate_artifact_matches_input(input_path, output_path)
 
 
 def validate_artifact_suite(benchmark: dict) -> None:

@@ -1,4 +1,5 @@
 import importlib.util
+import copy
 import unittest
 from pathlib import Path
 
@@ -17,6 +18,7 @@ def case_tree():
                 "title": "订单",
                 "cases": [
                     {
+                        "case_id": "C-1",
                         "title": "[P1] 创建订单",
                         "priority": "P1",
                         "preconditions": "用户已登录",
@@ -137,8 +139,18 @@ class CaseTreeQualityTests(unittest.TestCase):
         self.assertEqual(metrics["api_coverage_rate"], 1.0)
         self.assertEqual(metrics["data_invariant_coverage_rate"], 0.0)
 
-    def test_threshold_validation_uses_computed_metrics(self):
+    def test_final_tree_must_match_ir_selected_cases(self):
         metrics = MODULE.compute_metrics(case_tree(), ir(), ["C-1", "C-2"])
+        self.assertFalse(metrics["tree_ir_binding_passed"])
+        self.assertFalse(metrics["quality_gate_passed"])
+
+    def test_threshold_validation_uses_computed_metrics(self):
+        tree = case_tree()
+        second = copy.deepcopy(tree["groups"][0]["cases"][0])
+        second["case_id"] = "C-2"
+        second["title"] = "[P1] 订单数据一致"
+        tree["groups"][0]["cases"].append(second)
+        metrics = MODULE.compute_metrics(tree, ir(), ["C-1", "C-2"])
         valid = {
             "min_schema_complete_rate": 1.0,
             "max_schema_errors": 0,
@@ -153,6 +165,11 @@ class CaseTreeQualityTests(unittest.TestCase):
                 {"min_required_atom_coverage_rate": 1.1},
                 "case",
             )
+
+    def test_threshold_validation_always_enforces_quality_gate(self):
+        metrics = MODULE.compute_metrics(case_tree(), ir(), ["C-1"])
+        with self.assertRaisesRegex(SystemExit, "quality gate failed"):
+            MODULE.validate_against_config(metrics, {}, "case")
 
 
 if __name__ == "__main__":

@@ -21,6 +21,7 @@
       "groups": [],
       "cases": [
         {
+          "case_id": "CASE-ORDER-CREATE",
           "title": "[P1] 订单 - 创建成功",
           "priority": "P1",
           "preconditions": "用户已登录",
@@ -35,7 +36,7 @@
 }
 ```
 
-顶层必须是 object，`groups` 是非空 list。group title 非空，`groups` 与 `cases` 为 list。case 的 title、priority、preconditions、steps 必填；priority 只允许 `P0/P1/P2/P3`，标题前缀必须匹配。preconditions 是非空 string；steps 是非空 list；action 和 expected 是非空 string。
+顶层必须是 object，`groups` 是非空 list。group title 非空，`groups` 与 `cases` 为 list。case 的 `case_id` 绑定内部 IR 中最终选中的候选 ID；eval 中最终树的 ID 集合必须与 `selected_case_ids` 完全一致。case 的 title、priority、preconditions、steps 必填；priority 必须是 string 且只允许精确值 `P0/P1/P2/P3`，标题前缀必须匹配。preconditions 是非空 string；steps 是非空 list；action 和 expected 是非空 string。顶层、group、case 和 step 的可选 note 必须是 string。
 
 ## 命名和标点
 

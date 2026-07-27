@@ -7,9 +7,21 @@
   "states": [],
   "coverage_atoms": [
     {"id": "A-EXPORT", "kind": "data_consistency", "target_ref": "INV-EXPORT", "required": true, "risk_weight": 5},
-    {"id": "A-PARTIAL", "kind": "exception_recovery", "target_ref": "G-DATA", "required": true, "risk_weight": 4}
+    {"id": "A-PARTIAL", "kind": "exception_recovery", "target_ref": "G-DATA", "required": true, "risk_weight": 4},
+    {"id": "A-IMPORT", "kind": "interaction_flow", "target_ref": "G-DATA", "required": false, "risk_weight": 3},
+    {"id": "A-PERMISSION", "kind": "permission", "target_ref": "G-DATA", "required": false, "risk_weight": 3},
+    {"id": "A-APPROVE", "kind": "business_rule", "target_ref": "G-DATA", "required": false, "risk_weight": 3}
   ],
   "candidate_cases": [
+    {
+      "id": "C-IMPORT",
+      "title": "模板校验通过后创建导入任务",
+      "source_refs": ["SRC-DATA"],
+      "goal_refs": ["G-DATA"],
+      "path_type": "positive",
+      "coverage_atoms": ["A-IMPORT"],
+      "execution_cost": 1
+    },
     {
       "id": "C-EXPORT",
       "title": "导出与列表一致",
@@ -27,6 +39,24 @@
       "goal_refs": ["G-DATA"],
       "path_type": "critical_failure",
       "coverage_atoms": ["A-PARTIAL"],
+      "execution_cost": 1
+    },
+    {
+      "id": "C-PERMISSION",
+      "title": "普通销售只能查看本人导入任务",
+      "source_refs": ["SRC-DATA"],
+      "goal_refs": ["G-DATA"],
+      "path_type": "negative",
+      "coverage_atoms": ["A-PERMISSION"],
+      "execution_cost": 1
+    },
+    {
+      "id": "C-APPROVE",
+      "title": "审批通过后同步客户池并通知",
+      "source_refs": ["SRC-DATA"],
+      "goal_refs": ["G-DATA"],
+      "path_type": "positive",
+      "coverage_atoms": ["A-APPROVE"],
       "execution_cost": 1
     }
   ],
